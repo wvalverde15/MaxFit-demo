@@ -1,0 +1,17 @@
+@if (!session()) {
+  <app-login (submit)="loginFromComponent($event)" (forgot)="forgotPassword()"></app-login>
+} @else {
+  <app-shell [navItems]="visibleNav()" [activeView]="activeView()" [role]="session()?.role ?? ''" [roleLabel]="roleLabel()" [name]="session()?.name ?? ''" (navigate)="navigate($event)" (logout)="logout()" (menu)="toggleMenu()">
+    @if (activeView() === 'dashboard') {
+      <app-dashboard [role]="session()?.role ?? ''" [name]="session()?.name ?? ''" (navigate)="navigate($event)" (action)="handleModuleAction($event)"></app-dashboard>
+    } @else {
+      @if (isAnyFormOpen()) {
+        <app-form-host [activeView]="activeView()" [paymentOpen]="isPaymentOpen()" [measurementOpen]="isMeasurementOpen()" [clientOpen]="isClientFormOpen()" [clientReadOnly]="clientFormReadOnly()" [selectedClient]="selectedClient()" [planOpen]="isPlanFormOpen()" [routineOpen]="isRoutineFormOpen()" [machineOpen]="isMachineFormOpen()" [sessionOpen]="isSessionFormOpen()" (saved)="handleFormSaved($event)" (closed)="closeForm($event)"></app-form-host>
+      } @else {
+        <app-module-page [view]="activeView()" [role]="session()?.role ?? ''" [clients]="clients()" [plans]="membershipPlans()" [classes]="classSessions()" [workouts]="workouts()" [machines]="machines()" [accessEvents]="accessEvents()" (action)="handleModuleAction($event)"></app-module-page>
+      }
+    }
+  </app-shell>
+}
+@if (isVoiceListening() || voiceText()) { <div class="voice-toast" [class.listening]="isVoiceListening()"><span class="voice-pulse">◉</span><div><strong>{{ isVoiceListening() ? 'Escuchando pago por voz' : 'Transcripción lista' }}</strong><small>{{ voiceText() }}</small></div>@if (!isVoiceListening()) {<button class="primary-button small" (click)="openPaymentForm(); voiceText.set('')">Revisar</button>}</div> }
+@if (toast()) { <div class="toast">✓ {{ toast() }}</div> }
