@@ -15,6 +15,7 @@ interface Client { id: number; name: string; initials: string; membership: strin
 interface MembershipPlan { name: string; duration: string; sessions: string; price: string; active: boolean; sold: number; }
 interface ClassSession { name: string; trainer: string; time: string; room: string; capacity: number; booked: number; status: string; }
 interface Workout { exercise: string; sets: string; load: string; progress: string; machine: string; image: string; video?: string; focus: string; cue: string; }
+interface RoutinePlan { name: string; focus: string; duration: string; exercises: string[]; status: string; assigned: number; }
 interface Machine { name: string; area: string; image: string; video: string; status: string; }
 interface AccessEvent { client: string; time: string; type: string; result: string; reason: string; }
 
@@ -42,6 +43,7 @@ export class App {
   protected readonly selectedClientId = signal<number | null>(null);
   protected readonly isPlanFormOpen = signal(false);
   protected readonly isRoutineFormOpen = signal(false);
+  protected readonly isRoutinePlanFormOpen = signal(false);
   protected readonly isMachineFormOpen = signal(false);
   protected readonly isSessionFormOpen = signal(false);
   protected readonly isFilterOpen = signal(false);
@@ -100,6 +102,11 @@ export class App {
     { exercise: 'Extensión de piernas', sets: '3 × 12', load: '35 kg', progress: '+5 kg', machine: 'Leg extension', image: 'https://images.unsplash.com/photo-1576678927484-cc907957088c?auto=format&fit=crop&w=900&q=85', focus: 'Cuádriceps', cue: 'Sube con control y pausa un segundo arriba.' },
     { exercise: 'Remo sentado', sets: '3 × 12', load: '45 kg', progress: '+5 kg', machine: 'Seated row', image: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1a?auto=format&fit=crop&w=900&q=85', focus: 'Espalda media', cue: 'Mantén el pecho abierto y junta las escápulas.' },
   ]);
+  protected readonly routines = signal<RoutinePlan[]>([
+    { name: 'Fuerza e hipertrofia', focus: 'Tren superior', duration: '8 semanas', exercises: ['Press de pecho', 'Jalón al pecho', 'Remo sentado'], status: 'Activa', assigned: 24 },
+    { name: 'Tren inferior inicial', focus: 'Piernas y glúteos', duration: '6 semanas', exercises: ['Prensa inclinada', 'Extensión de piernas'], status: 'Activa', assigned: 18 },
+    { name: 'Acondicionamiento general', focus: 'Pérdida de grasa', duration: '4 semanas', exercises: ['Prensa inclinada', 'Remo sentado', 'Jalón al pecho'], status: 'Borrador', assigned: 0 },
+  ]);
   protected readonly machines = signal<Machine[]>([
     { name: 'Leg press 45°', area: 'Piernas', image: 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=900&q=85', video: 'https://www.youtube.com/embed/cDGOn-yfKJA', status: 'Activa' },
     { name: 'Chest press', area: 'Pecho', image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=900&q=85', video: '', status: 'Activa' },
@@ -126,7 +133,7 @@ export class App {
   protected readonly selectedClient = computed(() => this.clients().find(client => client.id === this.selectedClientId()) ?? null);
   protected readonly myAccessEvents = computed(() => this.accessEvents().filter(event => event.client === this.session()?.name));
   protected readonly roleLabel = computed(() => this.session()?.role === 'PROPIETARIO' ? 'Propietario' : this.session()?.role === 'ADMI' ? 'Administrador' : this.session()?.role === 'OPERADOR' ? 'Operador' : 'Cliente');
-  protected readonly isAnyFormOpen = computed(() => this.isPaymentOpen() || this.isMeasurementOpen() || this.isClientFormOpen() || this.isPlanFormOpen() || this.isRoutineFormOpen() || this.isMachineFormOpen() || this.isSessionFormOpen());
+  protected readonly isAnyFormOpen = computed(() => this.isPaymentOpen() || this.isMeasurementOpen() || this.isClientFormOpen() || this.isPlanFormOpen() || this.isRoutinePlanFormOpen() || this.isRoutineFormOpen() || this.isMachineFormOpen() || this.isSessionFormOpen());
   protected login(): void { const match = this.credentials.find(item => item.email === this.loginEmail && item.password === this.loginPassword); if (!match) { this.loginError.set('Usuario o contraseña incorrectos'); return; } this.loginError.set(''); this.session.set({ email: match.email, name: match.name, role: match.role }); this.activeView.set('dashboard'); }
   protected loginFromComponent(data: { email: string; password: string }): void { this.loginEmail = data.email; this.loginPassword = data.password; this.login(); }
   protected logout(): void { this.session.set(null); this.loginEmail = ''; this.loginPassword = ''; }
@@ -165,6 +172,13 @@ export class App {
     this.newPlanName = ''; this.isPlanFormOpen.set(false); this.showToast('Plan creado correctamente');
   }
   protected openRoutineForm(): void { this.activeView.set('entrenamiento'); this.isRoutineFormOpen.set(true); }
+  protected openRoutinePlanForm(): void { this.activeView.set('entrenamiento'); this.isRoutinePlanFormOpen.set(true); }
+  protected saveRoutinePlan(data: { name: string; focus: string; duration: string; exercises: string }): void {
+    const name = data.name.trim();
+    if (!name || !data.exercises.trim()) { this.showToast('Completa nombre y ejercicios de la rutina'); return; }
+    this.routines.update(items => [...items, { name, focus: data.focus, duration: data.duration, exercises: data.exercises.split(',').map(item => item.trim()).filter(Boolean), status: 'Activa', assigned: 0 }]);
+    this.isRoutinePlanFormOpen.set(false); this.showToast('Plan de rutina creado correctamente');
+  }
   protected saveRoutine(): void {
     const exercise = this.newRoutineExercise.trim();
     if (!exercise || !this.newRoutineMachine.trim()) { this.showToast('Completa ejercicio y máquina'); return; }
@@ -192,6 +206,7 @@ export class App {
   }
   protected onPlanSaved(data: { name: string; duration: string; sessions: string; price: number }): void { this.newPlanName = data.name; this.newPlanDuration = data.duration; this.newPlanSessions = data.sessions; this.newPlanPrice = data.price; this.savePlan(); }
   protected onRoutineSaved(data: { exercise: string; machine: string; sets: string; load: string }): void { this.newRoutineExercise = data.exercise; this.newRoutineMachine = data.machine; this.newRoutineSets = data.sets; this.newRoutineLoad = data.load; this.saveRoutine(); }
+  protected onRoutinePlanSaved(data: { name: string; focus: string; duration: string; exercises: string }): void { this.saveRoutinePlan(data); }
   protected onMachineSaved(data: { name: string; area: string; image: string; video: string }): void { this.newMachineName = data.name; this.newMachineArea = data.area; this.newMachineImage = data.image; this.newMachineVideo = data.video; this.saveMachine(); }
   protected onSessionSaved(notes: string): void { this.sessionNotes = notes; this.saveSession(); }
   protected handleFormSaved(submission: FormSubmission): void {
@@ -201,6 +216,7 @@ export class App {
       case 'client': this.onClientSaved(submission.data); break;
       case 'plan': this.onPlanSaved(submission.data); break;
       case 'routine': this.onRoutineSaved(submission.data); break;
+      case 'routine-plan': this.onRoutinePlanSaved(submission.data); break;
       case 'machine': this.onMachineSaved(submission.data); break;
       case 'session': this.onSessionSaved(submission.data); break;
     }
@@ -211,6 +227,7 @@ export class App {
     if (kind === 'client') { this.isClientFormOpen.set(false); this.clientFormReadOnly.set(false); this.selectedClientId.set(null); }
     if (kind === 'plan') this.isPlanFormOpen.set(false);
     if (kind === 'routine') this.isRoutineFormOpen.set(false);
+    if (kind === 'routine-plan') this.isRoutinePlanFormOpen.set(false);
     if (kind === 'machine') this.isMachineFormOpen.set(false);
     if (kind === 'session') this.isSessionFormOpen.set(false);
   }
@@ -220,7 +237,8 @@ export class App {
     else if (action === 'new-plan') this.openPlanForm();
     else if (action === 'new-payment' || action === 'voice-payment') { this.activeView.set('pagos'); this.isPaymentOpen.set(true); if (action === 'voice-payment') this.startVoicePayment(); }
     else if (action === 'new-measurement') { this.activeView.set('progreso'); this.isMeasurementOpen.set(true); }
-    else if (action === 'new-routine' || action === 'edit-routine' || action === 'new-machine') { this.activeView.set('entrenamiento'); action === 'new-machine' ? this.openMachineForm() : this.openRoutineForm(); }
+    else if (action === 'new-routine-plan' || action === 'new-routine') this.openRoutinePlanForm();
+    else if (action === 'edit-routine' || action === 'new-routine-exercise' || action === 'new-machine') { this.activeView.set('entrenamiento'); action === 'new-machine' ? this.openMachineForm() : this.openRoutineForm(); }
     else if (action === 'new-session') { this.activeView.set('entrenamiento'); this.isSessionFormOpen.set(true); }
     else if (action === 'register-load') this.showToast('Carga registrada en la sesión actual');
     else if (action === 'reserve-class') this.showToast('Reserva confirmada');

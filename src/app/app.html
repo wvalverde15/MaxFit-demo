@@ -6,9 +6,9 @@
       <app-dashboard [role]="session()?.role ?? ''" [name]="session()?.name ?? ''" (navigate)="navigate($event)" (action)="handleModuleAction($event)"></app-dashboard>
     } @else {
       @if (isAnyFormOpen()) {
-        <app-form-host [activeView]="activeView()" [paymentOpen]="isPaymentOpen()" [measurementOpen]="isMeasurementOpen()" [clientOpen]="isClientFormOpen()" [clientReadOnly]="clientFormReadOnly()" [selectedClient]="selectedClient()" [planOpen]="isPlanFormOpen()" [routineOpen]="isRoutineFormOpen()" [machineOpen]="isMachineFormOpen()" [sessionOpen]="isSessionFormOpen()" (saved)="handleFormSaved($event)" (closed)="closeForm($event)"></app-form-host>
+        <app-form-host [activeView]="activeView()" [paymentOpen]="isPaymentOpen()" [measurementOpen]="isMeasurementOpen()" [clientOpen]="isClientFormOpen()" [clientReadOnly]="clientFormReadOnly()" [selectedClient]="selectedClient()" [planOpen]="isPlanFormOpen()" [routinePlanOpen]="isRoutinePlanFormOpen()" [routineOpen]="isRoutineFormOpen()" [machineOpen]="isMachineFormOpen()" [sessionOpen]="isSessionFormOpen()" (saved)="handleFormSaved($event)" (closed)="closeForm($event)"></app-form-host>
       } @else {
-        <app-module-page [view]="activeView()" [role]="session()?.role ?? ''" [clients]="clients()" [plans]="membershipPlans()" [classes]="classSessions()" [workouts]="workouts()" [machines]="machines()" [accessEvents]="accessEvents()" (action)="handleModuleAction($event)"></app-module-page>
+        <app-module-page [view]="activeView()" [role]="session()?.role ?? ''" [clients]="clients()" [plans]="membershipPlans()" [classes]="classSessions()" [workouts]="workouts()" [routines]="routines()" [machines]="machines()" [accessEvents]="accessEvents()" (action)="handleModuleAction($event)"></app-module-page>
       }
     }
   </app-shell>
