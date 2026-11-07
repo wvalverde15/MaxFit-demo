@@ -1,5 +1,7 @@
-@if (!session()) {
-  <app-login (submit)="loginFromComponent($event)" (forgot)="forgotPassword()"></app-login>
+@if (isShopRoute()) {
+  <app-shop (backToLogin)="goToLogin()"></app-shop>
+} @else if (!session()) {
+  <app-login (submit)="loginFromComponent($event)" (forgot)="forgotPassword()" (shop)="openShop()"></app-login>
 } @else {
   <app-shell [navItems]="visibleNav()" [activeView]="activeView()" [role]="session()?.role ?? ''" [roleLabel]="roleLabel()" [name]="session()?.name ?? ''" [menuOpen]="isMenuOpen()" (navigate)="navigate($event)" (logout)="logout()" (menu)="toggleMenu()">
     @if (activeView() === 'dashboard') {

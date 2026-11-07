@@ -15,6 +15,7 @@ import { QrViewerComponent } from './components/qr-viewer.component';
 import { DetailPageComponent } from './components/detail-page.component';
 import { DemoStoreService } from './services/demo-store.service';
 import { AuthService } from './services/auth.service';
+import { ShopComponent } from './components/shop.component';
 
 type Role = 'PROPIETARIO' | 'ADMI' | 'OPERADOR' | 'ASESOR' | 'USUARIO';
 type ViewKey = 'dashboard' | 'prospectos' | 'clientes' | 'membresias' | 'ventas' | 'pagos' | 'clases' | 'entrenamiento' | 'progreso' | 'accesos' | 'reportes';
@@ -36,7 +37,7 @@ interface MeasurementRecord { id: number; date: string; weight: number; waist: n
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, FormsModule, AppShellComponent, DashboardComponent, FormHostComponent, LoginComponent, ModulePageComponent, UserTrainingComponent, UserProgressComponent, UserPaymentComponent, PaymentInboxComponent, LoadFormComponent, QrViewerComponent, DetailPageComponent],
+  imports: [CommonModule, FormsModule, AppShellComponent, DashboardComponent, FormHostComponent, LoginComponent, ShopComponent, ModulePageComponent, UserTrainingComponent, UserProgressComponent, UserPaymentComponent, PaymentInboxComponent, LoadFormComponent, QrViewerComponent, DetailPageComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
@@ -69,6 +70,7 @@ export class App {
   protected readonly isVoiceListening = signal(false);
   protected readonly voiceText = signal('');
   protected readonly toast = signal('');
+  protected readonly isShopRoute = signal(typeof window !== 'undefined' && window.location.pathname.replace(/\/$/, '') === '/shop');
   protected loginEmail = 'admin@maxfit.test';
   protected loginPassword = 'Admin123';
   protected paymentClient = 'Jorge Medina';
@@ -197,6 +199,8 @@ export class App {
   protected login(): void { const match = this.auth.authenticate(this.loginEmail, this.loginPassword); if (!match) { this.loginError.set('Usuario o contraseña incorrectos'); return; } this.loginError.set(''); this.session.set({ email: match.email, name: match.name, role: match.role }); this.activeView.set('dashboard'); }
   protected loginFromComponent(data: { email: string; password: string }): void { this.loginEmail = data.email; this.loginPassword = data.password; this.login(); }
   protected logout(): void { this.session.set(null); this.loginEmail = ''; this.loginPassword = ''; }
+  protected openShop(): void { if (typeof window !== 'undefined') window.history.pushState({}, '', '/shop'); this.isShopRoute.set(true); }
+  protected goToLogin(): void { if (typeof window !== 'undefined') window.history.pushState({}, '', '/'); this.isShopRoute.set(false); }
   protected navigate(view: string): void {
     this.isMenuOpen.set(false);
     if (this.session()?.role === 'USUARIO' && view === 'membresias') view = 'pagos';
