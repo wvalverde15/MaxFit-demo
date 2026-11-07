@@ -1,17 +1,30 @@
 @if (!session()) {
   <app-login (submit)="loginFromComponent($event)" (forgot)="forgotPassword()"></app-login>
 } @else {
-  <app-shell [navItems]="visibleNav()" [activeView]="activeView()" [role]="session()?.role ?? ''" [roleLabel]="roleLabel()" [name]="session()?.name ?? ''" (navigate)="navigate($event)" (logout)="logout()" (menu)="toggleMenu()">
+  <app-shell [navItems]="visibleNav()" [activeView]="activeView()" [role]="session()?.role ?? ''" [roleLabel]="roleLabel()" [name]="session()?.name ?? ''" [menuOpen]="isMenuOpen()" (navigate)="navigate($event)" (logout)="logout()" (menu)="toggleMenu()">
     @if (activeView() === 'dashboard') {
       <app-dashboard [role]="session()?.role ?? ''" [name]="session()?.name ?? ''" (navigate)="navigate($event)" (action)="handleModuleAction($event)"></app-dashboard>
     } @else {
       @if (isAnyFormOpen()) {
-        <app-form-host [activeView]="activeView()" [paymentOpen]="isPaymentOpen()" [measurementOpen]="isMeasurementOpen()" [clientOpen]="isClientFormOpen()" [clientReadOnly]="clientFormReadOnly()" [selectedClient]="selectedClient()" [planOpen]="isPlanFormOpen()" [routinePlanOpen]="isRoutinePlanFormOpen()" [routineOpen]="isRoutineFormOpen()" [machineOpen]="isMachineFormOpen()" [sessionOpen]="isSessionFormOpen()" (saved)="handleFormSaved($event)" (closed)="closeForm($event)"></app-form-host>
+        @if (isLoadFormOpen()) { @defer (when isLoadFormOpen()) { <app-load-form [exercise]="selectedLoadExercise()?.exercise ?? ''" [machine]="selectedLoadExercise()?.machine ?? ''" [currentLoad]="parseLoad(selectedLoadExercise()?.load)" (saved)="saveLoad($event)" (closed)="closeForm('load')"></app-load-form> } @placeholder { <div class="empty-state"><small>Cargando formulario…</small></div> } } @else { <app-form-host [activeView]="activeView()" [paymentOpen]="isPaymentOpen()" [measurementOpen]="isMeasurementOpen()" [clientOpen]="isClientFormOpen()" [clientReadOnly]="clientFormReadOnly()" [selectedClient]="selectedClient()" [planOpen]="isPlanFormOpen()" [routinePlanOpen]="isRoutinePlanFormOpen()" [routineOpen]="isRoutineFormOpen()" [machineOpen]="isMachineFormOpen()" [sessionOpen]="isSessionFormOpen()" [prospectOpen]="isProspectFormOpen()" [appointmentOpen]="isAppointmentFormOpen()" [saleOpen]="isSaleFormOpen()" [manualAccessOpen]="isManualAccessFormOpen()" (saved)="handleFormSaved($event)" (closed)="closeForm($event)"></app-form-host> }
       } @else {
-        <app-module-page [view]="activeView()" [role]="session()?.role ?? ''" [clients]="clients()" [plans]="membershipPlans()" [classes]="classSessions()" [workouts]="workouts()" [routines]="routines()" [machines]="machines()" [accessEvents]="accessEvents()" (action)="handleModuleAction($event)"></app-module-page>
+        @if (selectedDetail()) {
+          @defer (when selectedDetail()) { <app-detail-page [kind]="selectedDetail()?.kind ?? ''" [data]="selectedDetail()?.data" (closed)="closeDetail()"></app-detail-page> } @placeholder { <div class="empty-state"><small>Cargando detalle…</small></div> }
+        } @else if (session()?.role === 'USUARIO' && activeView() === 'entrenamiento') {
+          @defer (when activeView() === 'entrenamiento') { <app-user-training [workouts]="workouts()" (action)="handleModuleAction($event)"></app-user-training> } @placeholder { <div class="empty-state"><small>Cargando entrenamiento…</small></div> }
+        } @else if (session()?.role === 'USUARIO' && activeView() === 'progreso') {
+          @defer (when activeView() === 'progreso') { <app-user-progress [measurements]="measurements()" [sessionRecords]="sessionRecords()" [workouts]="workouts()" (action)="handleModuleAction($event)"></app-user-progress> } @placeholder { <div class="empty-state"><small>Cargando progreso…</small></div> }
+        } @else if (session()?.role === 'USUARIO' && (activeView() === 'pagos' || activeView() === 'membresias')) {
+          @defer (when activeView() === 'pagos' || activeView() === 'membresias') { <app-user-payment [view]="activeView()" [plans]="membershipPlans()" [paymentRequest]="myPaymentProof()" (submitted)="onUserPaymentSubmitted($event)" (copyNumber)="copyPaymentNumber($event)" (openApp)="openPaymentApp($event)"></app-user-payment> } @placeholder { <div class="empty-state"><small>Cargando pagos…</small></div> }
+        } @else if (session()?.role !== 'USUARIO' && activeView() === 'pagos') {
+          @defer (when activeView() === 'pagos') { <app-payment-inbox [proofs]="paymentProofs()" (action)="handleModuleAction($event)"></app-payment-inbox> } @placeholder { <div class="empty-state"><small>Cargando bandeja…</small></div> }
+        } @else {
+          @defer (when activeView() !== 'dashboard') { <app-module-page [view]="activeView()" [role]="session()?.role ?? ''" [clients]="clients()" [plans]="membershipPlans()" [classes]="classSessions()" [workouts]="workouts()" [routines]="routines()" [machines]="machines()" [accessEvents]="accessEvents()" [prospects]="prospects()" [appointments]="appointments()" [sales]="sales()" (action)="handleModuleAction($event)"></app-module-page> } @placeholder { <div class="empty-state"><small>Cargando módulo…</small></div> }
+        }
       }
     }
   </app-shell>
+  @if (isQrOpen()) { <app-qr-viewer [name]="session()?.name ?? ''" (closed)="closeQr()"></app-qr-viewer> }
 }
 @if (isVoiceListening() || voiceText()) { <div class="voice-toast" [class.listening]="isVoiceListening()"><span class="voice-pulse">◉</span><div><strong>{{ isVoiceListening() ? 'Escuchando pago por voz' : 'Transcripción lista' }}</strong><small>{{ voiceText() }}</small></div>@if (!isVoiceListening()) {<button class="primary-button small" (click)="openPaymentForm(); voiceText.set('')">Revisar</button>}</div> }
 @if (toast()) { <div class="toast">✓ {{ toast() }}</div> }

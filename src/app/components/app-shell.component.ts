@@ -1,4 +1,19 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
-@Component({ selector: 'app-shell', standalone: true, template: `<div class="app-shell"><aside class="sidebar"><div class="sidebar-brand"><span class="brand-mark">MF</span><span>MAX <b>FIT</b></span></div><div class="role-chip"><span class="status-dot"></span>{{ role }} <small>{{ roleLabel }}</small></div><nav>@for (item of navItems; track item.key) { <button [class.active]="activeView === item.key" (click)="navigate.emit(item.key)"><span class="nav-icon">{{ item.icon }}</span>{{ item.label }}</button> }</nav><button class="logout" (click)="logout.emit()"><span>↪</span> Cerrar sesión</button></aside><main class="main-content"><header class="topbar"><button class="mobile-menu" (click)="menu.emit()">☰</button><div><p class="breadcrumb">MAX FIT / <span>{{ activeView }}</span></p><h1>{{ activeView === 'dashboard' ? 'Dashboard' : activeView }}</h1></div><div class="top-actions"><div class="avatar">{{ initials(name) }}</div><div class="user-meta"><strong>{{ name }}</strong><small>{{ roleLabel }}</small></div></div></header><ng-content></ng-content></main></div>` })
-export class AppShellComponent { @Input() navItems: any[] = []; @Input() activeView = ''; @Input() role = ''; @Input() roleLabel = ''; @Input() name = ''; @Output() navigate = new EventEmitter<string>(); @Output() logout = new EventEmitter<void>(); @Output() menu = new EventEmitter<void>(); initials(name: string) { return name.split(' ').map(part => part[0]).slice(0, 2).join(''); } }
+@Component({
+  selector: 'app-shell',
+  standalone: true,
+  template: `<div class="app-shell"><aside class="sidebar" [class.open]="menuOpen"><div class="sidebar-brand"><span class="brand-mark">MF</span><span>MAX <b>FIT</b></span></div><div class="role-chip"><span class="status-dot"></span>{{ role }} <small>{{ roleLabel }}</small></div><nav>@for (item of navItems; track item.key) { <button [class.active]="activeView === item.key" (click)="navigate.emit(item.key)"><span class="nav-icon">{{ item.icon }}</span>{{ item.label }}</button> }</nav><button class="logout" (click)="logout.emit()"><span>↪</span> Cerrar sesión</button></aside><main class="main-content"><header class="topbar"><button class="mobile-menu" (click)="menu.emit()">☰</button><div><p class="breadcrumb">MAX FIT / <span>{{ activeView }}</span></p><h1>{{ activeView === 'dashboard' ? 'Dashboard' : activeView }}</h1></div><div class="top-actions"><div class="avatar">{{ initials(name) }}</div><div class="user-meta"><strong>{{ name }}</strong>@if (role === 'USUARIO') { <small class="client-code-header">A001</small> }<small>{{ roleLabel }}</small></div></div></header><ng-content></ng-content></main></div>`
+})
+export class AppShellComponent {
+  @Input() navItems: any[] = [];
+  @Input() activeView = '';
+  @Input() role = '';
+  @Input() roleLabel = '';
+  @Input() name = '';
+  @Input() menuOpen = false;
+  @Output() navigate = new EventEmitter<string>();
+  @Output() logout = new EventEmitter<void>();
+  @Output() menu = new EventEmitter<void>();
+  initials(name: string) { return name.split(' ').map(part => part[0]).slice(0, 2).join(''); }
+}

@@ -1,0 +1,13 @@
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+
+@Component({
+  selector: 'app-qr-viewer',
+  standalone: true,
+  template: `<div class="qr-viewer-backdrop"><section class="qr-viewer-card"><button class="close-button" type="button" (click)="closed.emit()">×</button><span class="eyebrow orange">ACCESO MAX FIT</span><h2>Tu código de ingreso</h2><p class="muted">Preséntalo al operador para registrar tu asistencia.</p><strong class="qr-viewer-code">{{ clientCode }}</strong><div class="qr-viewer-code-art qr-svg" aria-label="Código QR de acceso">▦<b>MAX</b></div><div class="qr-viewer-person"><span class="avatar">{{ initials(name) }}</span><div><strong>{{ name }}</strong><small>Membresía activa · Acceso habilitado</small></div></div><small class="qr-viewer-note">Código personal · {{ clientCode }} · válido para hoy</small></section></div>`
+})
+export class QrViewerComponent {
+  @Input() name = '';
+  @Input() clientCode = 'A001';
+  @Output() closed = new EventEmitter<void>();
+  initials(name: string) { return name.split(' ').map(part => part[0]).slice(0, 2).join(''); }
+}

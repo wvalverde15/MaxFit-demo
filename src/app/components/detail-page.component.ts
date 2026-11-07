@@ -1,0 +1,24 @@
+import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+
+@Component({
+  selector: 'app-detail-page',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+    <section class="detail-page"><div class="page-head"><div><p class="eyebrow orange">DETALLE</p><h2>{{ title }}</h2><p class="muted">Consulta la información completa del registro seleccionado.</p></div><button class="secondary-button" type="button" (click)="closed.emit()">← Volver</button></div>
+      @if (kind === 'exercise') {<section class="detail-hero panel"><img [src]="data.image" [alt]="data.machine" /><div><span class="eyebrow orange">TÉCNICA Y CARGA</span><h3>{{ data.exercise }}</h3><p>{{ data.machine }} · {{ data.focus }}</p><div class="detail-stats"><span><small>Series</small><strong>{{ data.sets }}</strong></span><span><small>Carga actual</small><strong>{{ data.load }}</strong></span><span><small>Progreso</small><strong class="positive">{{ data.progress }}</strong></span></div><p class="muted">{{ data.cue }}</p></div></section><section class="panel detail-video"><div class="panel-head"><span>VIDEO DE TÉCNICA</span><span class="video-badge">▶</span></div>@if (data.video) {<div class="video-frame"><iframe [src]="data.video" title="Video de técnica" loading="lazy" allowfullscreen></iframe></div>} @else {<div class="empty-state"><strong>Video pendiente</strong><small>El asesor todavía no ha asociado un video.</small></div>}</section>}
+      @if (kind === 'routine') {<section class="panel detail-card"><div class="detail-card-header"><div><span class="eyebrow orange">PLAN DE RUTINA</span><h3>{{ data.name }}</h3><p>{{ data.focus }} · {{ data.duration }}</p></div><span class="status-pill active">{{ data.status }}</span></div><div class="detail-exercise-list">@for (exercise of data.exercises; track exercise; let i = $index) {<div><span>{{ i + 1 }}</span><strong>{{ exercise }}</strong><small>Ejercicio programado en la rutina</small></div>}</div></section>}
+      @if (kind === 'session') {<section class="panel detail-card"><div class="detail-card-header"><div><span class="eyebrow orange">SESIÓN REGISTRADA</span><h3>{{ data.routine }}</h3><p>{{ data.date }} · {{ data.duration }} minutos</p></div><span class="status-pill active">Completada</span></div><div class="detail-stats session-detail-stats"><span><small>Ejercicios</small><strong>{{ data.completed }}</strong></span><span><small>Series</small><strong>{{ data.sets }}</strong></span><span><small>Repeticiones</small><strong>{{ data.repetitions }}</strong></span><span><small>Esfuerzo</small><strong>{{ data.effort }}/10</strong></span><span><small>Carga total</small><strong>{{ data.totalLoad }} kg</strong></span></div><p class="detail-note">{{ data.notes || 'Sin observaciones registradas.' }}</p></section>}
+      @if (kind === 'prospect') {<section class="panel detail-card"><div class="detail-card-header"><div><span class="eyebrow orange">SEGUIMIENTO COMERCIAL</span><h3>{{ data.name }}</h3><p>{{ data.phone }} · Interés en {{ data.interest }}</p></div><span class="status-pill warning">{{ data.status }}</span></div><div class="detail-info-grid"><div><small>Asesor responsable</small><strong>{{ data.advisor }}</strong></div><div><small>Próximo contacto</small><strong>{{ data.nextContact }}</strong></div><div class="full"><small>Notas</small><strong>{{ data.notes }}</strong></div></div></section>}
+      @if (kind === 'sale') {<section class="panel detail-card"><div class="detail-card-header"><div><span class="eyebrow orange">VENTA REGISTRADA</span><h3>{{ data.item }}</h3><p>Cliente: {{ data.client }}</p></div><span class="status-pill active">{{ data.status }}</span></div><div class="detail-total"><span>Total cobrado</span><strong>S/ {{ data.amount }}</strong><small>Medio de pago: {{ data.method }}</small></div></section>}
+      @if (kind === 'report') {<section class="detail-report-grid"><article class="panel"><span class="eyebrow orange">CLIENTES</span><strong>428</strong><small>Clientes activos</small></article><article class="panel"><span class="eyebrow orange">INGRESOS</span><strong>S/ 12,450</strong><small>Recaudación del mes</small></article><article class="panel"><span class="eyebrow orange">ASISTENCIA</span><strong>86%</strong><small>Promedio de asistencia</small></article><article class="panel"><span class="eyebrow orange">ENTRENAMIENTO</span><strong>64</strong><small>Clientes con seguimiento</small></article></section>}
+    </section>
+  `
+})
+export class DetailPageComponent {
+  @Input() kind = '';
+  @Input() data: any = {};
+  @Output() closed = new EventEmitter<void>();
+  get title() { return this.kind === 'exercise' ? 'Detalle del ejercicio' : this.kind === 'routine' ? 'Detalle de la rutina' : this.kind === 'session' ? 'Detalle de la sesión' : this.kind === 'prospect' ? 'Detalle del prospecto' : this.kind === 'sale' ? 'Detalle de la venta' : 'Reporte general'; }
+}

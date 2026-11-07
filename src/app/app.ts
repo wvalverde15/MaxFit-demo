@@ -1,14 +1,23 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, computed, signal } from '@angular/core';
+import { Component, HostListener, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AppShellComponent } from './components/app-shell.component';
 import { DashboardComponent } from './components/dashboard.component';
 import { FormHostComponent, FormSubmission } from './components/form-host.component';
 import { LoginComponent } from './components/login.component';
 import { ModulePageComponent } from './components/module-page.component';
+import { UserTrainingComponent } from './components/user-training.component';
+import { UserProgressComponent } from './components/user-progress.component';
+import { UserPaymentComponent, UserPaymentSubmission } from './components/user-payment.component';
+import { PaymentInboxComponent } from './components/payment-inbox.component';
+import { LoadFormComponent } from './components/load-form.component';
+import { QrViewerComponent } from './components/qr-viewer.component';
+import { DetailPageComponent } from './components/detail-page.component';
+import { DemoStoreService } from './services/demo-store.service';
+import { AuthService } from './services/auth.service';
 
-type Role = 'PROPIETARIO' | 'ADMI' | 'OPERADOR' | 'USUARIO';
-type ViewKey = 'dashboard' | 'clientes' | 'membresias' | 'pagos' | 'clases' | 'entrenamiento' | 'progreso' | 'accesos';
+type Role = 'PROPIETARIO' | 'ADMI' | 'OPERADOR' | 'ASESOR' | 'USUARIO';
+type ViewKey = 'dashboard' | 'prospectos' | 'clientes' | 'membresias' | 'ventas' | 'pagos' | 'clases' | 'entrenamiento' | 'progreso' | 'accesos' | 'reportes';
 interface UserSession { email: string; name: string; role: Role; }
 interface NavItem { key: ViewKey; label: string; icon: string; roles: Role[]; }
 interface Client { id: number; name: string; initials: string; membership: string; status: string; expiry: string; phone: string; whatsapp: string; facebook: string; instagram: string; tiktok: string; weight: number; delta: string; lastPayment: string; }
@@ -18,20 +27,22 @@ interface Workout { exercise: string; sets: string; load: string; progress: stri
 interface RoutinePlan { name: string; focus: string; duration: string; exercises: string[]; status: string; assigned: number; }
 interface Machine { name: string; area: string; image: string; video: string; status: string; }
 interface AccessEvent { client: string; time: string; type: string; result: string; reason: string; }
+interface Prospect { id: number; name: string; phone: string; interest: string; advisor: string; status: string; nextContact: string; notes: string; }
+interface Sale { id: number; client: string; item: string; amount: number; method: string; status: string; }
+interface Appointment { id: number; person: string; type: string; advisor: string; date: string; time: string; status: string; notes: string; }
+interface PaymentProof { id: number; client: string; plan: string; amount: number; method: 'Yape' | 'Plin'; phone: string; fileName: string; submittedAt: string; status: 'Pendiente' | 'Validado' | 'Rechazado'; whatsappSent: boolean; }
+interface SessionRecord { id: number; date: string; routine: string; duration: number; completed: number; sets: number; repetitions: number; totalLoad: number; restSeconds: number; effort: number; notes: string; }
+interface MeasurementRecord { id: number; date: string; weight: number; waist: number; chest: number; arm: number; leg: number; }
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, FormsModule, AppShellComponent, DashboardComponent, FormHostComponent, LoginComponent, ModulePageComponent],
+  imports: [CommonModule, FormsModule, AppShellComponent, DashboardComponent, FormHostComponent, LoginComponent, ModulePageComponent, UserTrainingComponent, UserProgressComponent, UserPaymentComponent, PaymentInboxComponent, LoadFormComponent, QrViewerComponent, DetailPageComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
 export class App {
-  protected readonly credentials = [
-    { email: 'propietario@maxfit.test', password: 'Owner123', name: 'Jürgen Max Fit', role: 'PROPIETARIO' as Role },
-    { email: 'admin@maxfit.test', password: 'Admin123', name: 'Andrea Montalvo', role: 'ADMI' as Role },
-    { email: 'operador@maxfit.test', password: 'Operador123', name: 'Carlos Ríos', role: 'OPERADOR' as Role },
-    { email: 'usuario@maxfit.test', password: 'Usuario123', name: 'Jorge Medina', role: 'USUARIO' as Role },
-  ];
+  private readonly store = inject(DemoStoreService);
+  private readonly auth = inject(AuthService);
   protected readonly session = signal<UserSession | null>(null);
   protected readonly activeView = signal<ViewKey>('dashboard');
   protected readonly loginError = signal('');
@@ -46,6 +57,14 @@ export class App {
   protected readonly isRoutinePlanFormOpen = signal(false);
   protected readonly isMachineFormOpen = signal(false);
   protected readonly isSessionFormOpen = signal(false);
+  protected readonly isProspectFormOpen = signal(false);
+  protected readonly isAppointmentFormOpen = signal(false);
+  protected readonly isSaleFormOpen = signal(false);
+  protected readonly isManualAccessFormOpen = signal(false);
+  protected readonly isLoadFormOpen = signal(false);
+  protected readonly isQrOpen = signal(false);
+  protected readonly selectedDetail = signal<{ kind: string; data: any } | null>(null);
+  protected readonly selectedLoadExercise = signal<Workout | null>(null);
   protected readonly isFilterOpen = signal(false);
   protected readonly isVoiceListening = signal(false);
   protected readonly voiceText = signal('');
@@ -55,6 +74,16 @@ export class App {
   protected paymentClient = 'Jorge Medina';
   protected paymentAmount = 120;
   protected paymentMethod = 'Efectivo';
+  protected readonly paymentProofs = signal<PaymentProof[]>([]);
+  protected readonly sessionRecords = signal<SessionRecord[]>([
+    { id: 1, date: '22 Oct 2026', routine: 'Fuerza e hipertrofia', duration: 52, completed: 5, sets: 18, repetitions: 54, totalLoad: 480, restSeconds: 90, effort: 8, notes: 'Buena técnica y energía.' },
+    { id: 2, date: '20 Oct 2026', routine: 'Tren inferior', duration: 48, completed: 4, sets: 15, repetitions: 46, totalLoad: 420, restSeconds: 90, effort: 7, notes: 'Aumentar carga progresivamente.' }
+  ]);
+  protected readonly measurements = signal<MeasurementRecord[]>([
+    { id: 1, date: '05 Sep 2026', weight: 72.5, waist: 82, chest: 98, arm: 36, leg: 57 },
+    { id: 2, date: '05 Ago 2026', weight: 73.2, waist: 84, chest: 96, arm: 35, leg: 56 },
+    { id: 3, date: '05 Jul 2026', weight: 74.1, waist: 86, chest: 95, arm: 35, leg: 55 }
+  ]);
   protected newMeasurementDate = '05 Sep 2024';
   protected newWeight = 72.5;
   protected newWaist = 82;
@@ -77,6 +106,19 @@ export class App {
   protected newMachineImage = '';
   protected newMachineVideo = '';
   protected sessionNotes = '';
+  protected readonly prospects = signal<Prospect[]>([
+    { id: 101, name: 'Ana Torres', phone: '999 410 220', interest: 'Musculación', advisor: 'María Torres', status: 'Interesado', nextContact: '24 Oct 2026', notes: 'Solicitó información sobre plan mensual.' },
+    { id: 102, name: 'Pedro Salazar', phone: '987 220 118', interest: 'Bajar de peso', advisor: 'Carlos Ríos', status: 'Cita agendada', nextContact: '25 Oct 2026', notes: 'Evaluación inicial pendiente.' },
+    { id: 103, name: 'Lucía Ramos', phone: '945 310 877', interest: 'Baile', advisor: 'María Torres', status: 'Contactado', nextContact: '28 Oct 2026', notes: 'Interesada en clases nocturnas.' },
+  ]);
+  protected readonly sales = signal<Sale[]>([
+    { id: 1, client: 'Jorge Medina', item: 'Plan Mensual', amount: 120, method: 'Efectivo', status: 'Confirmada' },
+    { id: 2, client: 'Valeria Sánchez', item: 'Plan Trimestral', amount: 300, method: 'Yape', status: 'Confirmada' },
+  ]);
+  protected readonly appointments = signal<Appointment[]>([
+    { id: 1, person: 'Ana Torres', type: 'Cita comercial', advisor: 'María Torres', date: '24 Oct 2026', time: '09:00', status: 'Confirmada', notes: 'Interés en musculación.' },
+    { id: 2, person: 'Jorge Medina', type: 'Seguimiento de cliente', advisor: 'María Torres', date: '24 Oct 2026', time: '11:30', status: 'Pendiente', notes: 'Revisar progreso.' },
+  ]);
   protected readonly clients = signal<Client[]>([
     { id: 1, name: 'Jorge Medina', initials: 'JM', membership: 'Mensual', status: 'Activa', expiry: '30 Sep 2024', phone: '979 431 110', whatsapp: '+51 979 431 110', facebook: 'facebook.com/jorgemedina', instagram: '@jorgemedina.fit', tiktok: '@jorgefit', weight: 72.5, delta: '-2.8 kg', lastPayment: 'S/ 120' },
     { id: 2, name: 'Valeria Sánchez', initials: 'VS', membership: 'Trimestral', status: 'Activa', expiry: '14 Nov 2024', phone: '945 220 384', whatsapp: '+51 945 220 384', facebook: 'facebook.com/valeriasanchez', instagram: '@valeria.fit', tiktok: '@valeriamove', weight: 61.2, delta: '-1.4 kg', lastPayment: 'S/ 300' },
@@ -120,24 +162,44 @@ export class App {
     { client: 'María Torres', time: '07:58', type: 'Salida', result: 'Registrado', reason: 'Salida registrada' },
   ]);
   protected readonly navItems: NavItem[] = [
-    { key: 'dashboard', label: 'Dashboard', icon: '⌂', roles: ['PROPIETARIO', 'ADMI', 'OPERADOR', 'USUARIO'] },
-    { key: 'clientes', label: 'Clientes', icon: '♙', roles: ['PROPIETARIO', 'ADMI', 'OPERADOR'] },
+    { key: 'dashboard', label: 'Dashboard', icon: '⌂', roles: ['PROPIETARIO', 'ADMI', 'OPERADOR', 'ASESOR', 'USUARIO'] },
+    { key: 'prospectos', label: 'Prospectos', icon: '♧', roles: ['PROPIETARIO', 'ADMI', 'OPERADOR', 'ASESOR'] },
+    { key: 'clientes', label: 'Clientes', icon: '♙', roles: ['PROPIETARIO', 'ADMI', 'OPERADOR', 'ASESOR'] },
     { key: 'membresias', label: 'Membresías', icon: '▣', roles: ['PROPIETARIO', 'ADMI', 'OPERADOR', 'USUARIO'] },
+    { key: 'ventas', label: 'Ventas', icon: '▤', roles: ['PROPIETARIO', 'ADMI', 'OPERADOR'] },
     { key: 'pagos', label: 'Pagos', icon: '$', roles: ['PROPIETARIO', 'ADMI', 'OPERADOR', 'USUARIO'] },
-    { key: 'clases', label: 'Clases', icon: '◫', roles: ['PROPIETARIO', 'ADMI', 'OPERADOR', 'USUARIO'] },
-    { key: 'entrenamiento', label: 'Entrenamiento', icon: '✦', roles: ['PROPIETARIO', 'ADMI', 'OPERADOR', 'USUARIO'] },
-    { key: 'progreso', label: 'Progreso', icon: '⌁', roles: ['PROPIETARIO', 'ADMI', 'OPERADOR', 'USUARIO'] },
-    { key: 'accesos', label: 'Accesos', icon: '⌁', roles: ['PROPIETARIO', 'ADMI', 'OPERADOR', 'USUARIO'] },
+    { key: 'clases', label: 'Clases', icon: '◫', roles: ['PROPIETARIO', 'ADMI', 'OPERADOR', 'ASESOR', 'USUARIO'] },
+    { key: 'entrenamiento', label: 'Entrenamiento', icon: '✦', roles: ['PROPIETARIO', 'ADMI', 'OPERADOR', 'ASESOR', 'USUARIO'] },
+    { key: 'progreso', label: 'Progreso', icon: '⌁', roles: ['PROPIETARIO', 'ADMI', 'OPERADOR', 'ASESOR', 'USUARIO'] },
+    { key: 'accesos', label: 'Accesos', icon: '⌁', roles: ['PROPIETARIO', 'ADMI', 'OPERADOR', 'ASESOR', 'USUARIO'] },
+    { key: 'reportes', label: 'Reportes', icon: '↗', roles: ['PROPIETARIO', 'ADMI', 'OPERADOR', 'ASESOR'] },
   ];
-  protected readonly visibleNav = computed(() => this.navItems.filter(item => item.roles.includes(this.session()?.role ?? 'USUARIO')));
+  protected readonly visibleNav = computed(() => {
+    const role = this.session()?.role ?? 'USUARIO';
+    const items = this.navItems.filter(item => item.roles.includes(role));
+    return role === 'USUARIO' ? items.filter(item => item.key !== 'membresias').map(item => item.key === 'pagos' ? { ...item, label: 'Mi membresía y pagos', icon: '▣' } : item) : items;
+  });
   protected readonly selectedClient = computed(() => this.clients().find(client => client.id === this.selectedClientId()) ?? null);
+  protected readonly myPaymentProof = computed(() => this.paymentProofs().find(item => item.client === this.session()?.name) ?? null);
   protected readonly myAccessEvents = computed(() => this.accessEvents().filter(event => event.client === this.session()?.name));
-  protected readonly roleLabel = computed(() => this.session()?.role === 'PROPIETARIO' ? 'Propietario' : this.session()?.role === 'ADMI' ? 'Administrador' : this.session()?.role === 'OPERADOR' ? 'Operador' : 'Cliente');
-  protected readonly isAnyFormOpen = computed(() => this.isPaymentOpen() || this.isMeasurementOpen() || this.isClientFormOpen() || this.isPlanFormOpen() || this.isRoutinePlanFormOpen() || this.isRoutineFormOpen() || this.isMachineFormOpen() || this.isSessionFormOpen());
-  protected login(): void { const match = this.credentials.find(item => item.email === this.loginEmail && item.password === this.loginPassword); if (!match) { this.loginError.set('Usuario o contraseña incorrectos'); return; } this.loginError.set(''); this.session.set({ email: match.email, name: match.name, role: match.role }); this.activeView.set('dashboard'); }
+  protected readonly roleLabel = computed(() => this.session()?.role === 'PROPIETARIO' ? 'Propietario' : this.session()?.role === 'ADMI' ? 'Administrador' : this.session()?.role === 'OPERADOR' ? 'Operador' : this.session()?.role === 'ASESOR' ? 'Asesor' : 'Cliente');
+  protected readonly isAnyFormOpen = computed(() => this.isPaymentOpen() || this.isMeasurementOpen() || this.isClientFormOpen() || this.isPlanFormOpen() || this.isRoutinePlanFormOpen() || this.isRoutineFormOpen() || this.isMachineFormOpen() || this.isSessionFormOpen() || this.isProspectFormOpen() || this.isAppointmentFormOpen() || this.isSaleFormOpen() || this.isManualAccessFormOpen() || this.isLoadFormOpen());
+  private readonly demoPersistence = effect(() => {
+    this.store.write('maxfit-demo-state-v2', { clients: this.clients(), prospects: this.prospects(), sales: this.sales(), appointments: this.appointments(), membershipPlans: this.membershipPlans(), workouts: this.workouts(), routines: this.routines(), machines: this.machines(), accessEvents: this.accessEvents(), paymentProofs: this.paymentProofs(), sessionRecords: this.sessionRecords(), measurements: this.measurements(), classSessions: this.classSessions() });
+  });
+  constructor() {
+    this.store.remove('maxfit-demo-state');
+    const state = this.store.read<any>('maxfit-demo-state-v2');
+    if (state) {
+      if (state.clients) this.clients.set(state.clients); if (state.prospects) this.prospects.set(state.prospects); if (state.sales) this.sales.set(state.sales); if (state.appointments) this.appointments.set(state.appointments); if (state.membershipPlans) this.membershipPlans.set(state.membershipPlans); if (state.workouts) this.workouts.set(state.workouts); if (state.routines) this.routines.set(state.routines); if (state.machines) this.machines.set(state.machines); if (state.accessEvents) this.accessEvents.set(state.accessEvents); if (state.paymentProofs) this.paymentProofs.set(state.paymentProofs.filter((item: PaymentProof) => item.id !== 9001)); if (state.sessionRecords) this.sessionRecords.set(state.sessionRecords); if (state.measurements) this.measurements.set(state.measurements); if (state.classSessions) this.classSessions.set(state.classSessions);
+    }
+  }
+  protected login(): void { const match = this.auth.authenticate(this.loginEmail, this.loginPassword); if (!match) { this.loginError.set('Usuario o contraseña incorrectos'); return; } this.loginError.set(''); this.session.set({ email: match.email, name: match.name, role: match.role }); this.activeView.set('dashboard'); }
   protected loginFromComponent(data: { email: string; password: string }): void { this.loginEmail = data.email; this.loginPassword = data.password; this.login(); }
   protected logout(): void { this.session.set(null); this.loginEmail = ''; this.loginPassword = ''; }
   protected navigate(view: string): void {
+    this.isMenuOpen.set(false);
+    if (this.session()?.role === 'USUARIO' && view === 'membresias') view = 'pagos';
     if (this.session()?.role === 'USUARIO' && view === 'clientes') return;
     if (this.navItems.some(item => item.key === view)) this.activeView.set(view as ViewKey);
   }
@@ -158,6 +220,15 @@ export class App {
   protected openClientForm(): void { this.activeView.set('clientes'); this.clientFormReadOnly.set(false); this.selectedClientId.set(null); this.isClientFormOpen.set(true); this.isFilterOpen.set(false); }
   protected openClientDetails(id: number): void { this.activeView.set('clientes'); this.selectedClientId.set(id); this.clientFormReadOnly.set(true); this.isClientFormOpen.set(true); }
   protected openPaymentForm(): void { this.activeView.set('pagos'); this.isPaymentOpen.set(true); }
+  protected openProspectForm(): void { this.activeView.set('prospectos'); this.isProspectFormOpen.set(true); }
+  protected openAppointmentForm(): void { this.activeView.set('prospectos'); this.isAppointmentFormOpen.set(true); }
+  protected openSaleForm(): void { this.activeView.set('ventas'); this.isSaleFormOpen.set(true); }
+  protected openManualAccessForm(): void { this.activeView.set('accesos'); this.isManualAccessFormOpen.set(true); }
+  protected openLoadForm(exercise = 'Prensa inclinada'): void { this.activeView.set('entrenamiento'); this.selectedLoadExercise.set(this.workouts().find(item => item.exercise === exercise) ?? this.workouts()[0] ?? null); this.isLoadFormOpen.set(true); }
+  protected saveLoad(data: { exercise: string; load: number; notes: string }): void {
+    this.workouts.update(items => items.map(item => item.exercise === data.exercise ? { ...item, load: `${data.load} kg`, progress: 'Registrada' } : item));
+    this.isLoadFormOpen.set(false); this.showToast(`Carga de ${data.load} kg registrada para ${data.exercise}`);
+  }
   protected saveClient(): void {
     const name = this.newClientName.trim();
     if (!name) { this.showToast('Ingresa el nombre del cliente'); return; }
@@ -192,9 +263,39 @@ export class App {
     this.machines.update(items => [...items, { name, area: this.newMachineArea, image: this.newMachineImage || 'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=900&q=85', video: this.newMachineVideo, status: 'Activa' }]);
     this.newMachineName = ''; this.newMachineImage = ''; this.newMachineVideo = ''; this.isMachineFormOpen.set(false); this.showToast('Máquina agregada correctamente');
   }
-  protected saveSession(): void { this.isSessionFormOpen.set(false); this.activeView.set('entrenamiento'); this.sessionNotes = ''; this.showToast('Sesión de entrenamiento registrada'); }
+  protected saveSession(data?: { duration: number; routine: string; completed: number; sets: number; repetitions: number; totalLoad: number; restSeconds: number; effort: number; notes: string }): void { if (data) this.sessionRecords.update(items => [{ id: Date.now(), date: new Date().toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' }), ...data }, ...items]); this.isSessionFormOpen.set(false); this.activeView.set('entrenamiento'); this.sessionNotes = ''; this.showToast('Sesión de entrenamiento registrada y guardada'); }
+  protected reserveClass(): void {
+    this.classSessions.update(items => items.map(item => item.name === 'Musculación' && item.booked < item.capacity ? { ...item, booked: item.booked + 1 } : item));
+    this.showToast('Reserva confirmada. La clase quedó agregada a tu agenda.');
+  }
   protected onPaymentSaved(data: { client: string; amount: number; method: string }): void { this.paymentClient = data.client; this.paymentAmount = data.amount; this.paymentMethod = data.method; this.confirmPayment(); }
-  protected onMeasurementSaved(data: { date: string; weight: number; waist: number; chest: number; arm: number; leg: number }): void { this.newMeasurementDate = data.date; this.newWeight = data.weight; this.newWaist = data.waist; this.newChest = data.chest; this.newArm = data.arm; this.newLeg = data.leg; this.saveMeasurement(); }
+  protected onUserPaymentSubmitted(data: UserPaymentSubmission): void {
+    const client = this.session()?.name ?? 'Jorge Medina';
+    this.paymentProofs.update(items => [{ id: Date.now(), client, plan: data.plan, amount: data.amount, method: data.method, phone: data.phone, fileName: data.fileName, submittedAt: new Date().toLocaleString('es-PE', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }), status: 'Pendiente', whatsappSent: false }, ...items.filter(item => !(item.client === client && item.status === 'Pendiente'))]);
+    this.activeView.set('pagos');
+    this.showToast('Comprobante enviado. El operador revisará tu pago.');
+  }
+  protected validatePayment(id: number): void {
+    this.paymentProofs.update(items => items.map(item => item.id === id ? { ...item, status: 'Validado', whatsappSent: true } : item));
+    this.showToast('Pago validado. Confirmación enviada por WhatsApp al cliente.');
+  }
+  protected rejectPayment(id: number): void {
+    this.paymentProofs.update(items => items.map(item => item.id === id ? { ...item, status: 'Rechazado', whatsappSent: false } : item));
+    this.showToast('Comprobante observado. El cliente deberá enviar uno nuevo.');
+  }
+  protected copyPaymentNumber(phone: string): void {
+    navigator.clipboard?.writeText(phone).catch(() => undefined);
+    this.showToast(`Número ${phone} copiado`);
+  }
+  protected openPaymentApp(method: 'Yape' | 'Plin'): void { this.showToast(`Abriendo ${method}. En el demo puedes completar el pago desde tu celular.`); }
+  protected onMeasurementSaved(data: { date: string; weight: number; waist: number; chest: number; arm: number; leg: number }): void {
+    if (!data.date || data.weight <= 0 || data.waist <= 0 || data.chest <= 0 || data.arm <= 0 || data.leg <= 0) { this.showToast('Completa valores de peso y medidas mayores a cero'); return; }
+    this.newMeasurementDate = data.date; this.newWeight = data.weight; this.newWaist = data.waist; this.newChest = data.chest; this.newArm = data.arm; this.newLeg = data.leg;
+    this.measurements.update(items => [{ id: Date.now(), ...data }, ...items]);
+    const userName = this.session()?.name;
+    this.clients.update(items => items.map(client => client.name === userName ? { ...client, weight: data.weight, delta: `${(data.weight - client.weight).toFixed(1)} kg` } : client));
+    this.saveMeasurement();
+  }
   protected onClientSaved(data: { id?: number; name: string; phone: string; whatsapp: string; facebook: string; instagram: string; tiktok: string; membership: string }): void {
     if (this.clientFormReadOnly()) return;
     this.newClientName = data.name; this.newClientPhone = data.phone; this.newClientMembership = data.membership;
@@ -208,7 +309,29 @@ export class App {
   protected onRoutineSaved(data: { exercise: string; machine: string; sets: string; load: string }): void { this.newRoutineExercise = data.exercise; this.newRoutineMachine = data.machine; this.newRoutineSets = data.sets; this.newRoutineLoad = data.load; this.saveRoutine(); }
   protected onRoutinePlanSaved(data: { name: string; focus: string; duration: string; exercises: string }): void { this.saveRoutinePlan(data); }
   protected onMachineSaved(data: { name: string; area: string; image: string; video: string }): void { this.newMachineName = data.name; this.newMachineArea = data.area; this.newMachineImage = data.image; this.newMachineVideo = data.video; this.saveMachine(); }
-  protected onSessionSaved(notes: string): void { this.sessionNotes = notes; this.saveSession(); }
+  protected onSessionSaved(data: { duration: number; routine: string; completed: number; sets: number; repetitions: number; totalLoad: number; restSeconds: number; effort: number; notes: string }): void { this.sessionNotes = data.notes; this.saveSession(data); }
+  protected onProspectSaved(data: { name: string; phone: string; interest: string; advisor: string; contactDate: string; notes: string }): void {
+    const name = data.name.trim();
+    if (!name) { this.showToast('Ingresa el nombre del prospecto'); return; }
+    this.prospects.update(items => [...items, { id: Date.now(), name, phone: data.phone, interest: data.interest, advisor: data.advisor, status: 'Nuevo', nextContact: data.contactDate || 'Por programar', notes: data.notes }]);
+    this.closeForm('prospect'); this.showToast('Prospecto registrado correctamente');
+  }
+  protected onAppointmentSaved(data: { person: string; type: string; advisor: string; date: string; time: string; notes: string }): void {
+    if (!data.person.trim()) { this.showToast('Ingresa la persona de la cita'); return; }
+    this.appointments.update(items => [...items, { id: Date.now(), person: data.person, type: data.type, advisor: data.advisor, date: data.date, time: data.time, status: 'Pendiente', notes: data.notes }]);
+    this.closeForm('appointment'); this.showToast(`Cita de ${data.person} programada correctamente`);
+  }
+  protected onSaleSaved(data: { client: string; item: string; quantity: number; method: string; total: number }): void {
+    this.sales.update(items => [...items, { id: Date.now(), client: data.client, item: data.item.split(' · ')[0], amount: data.total, method: data.method, status: 'Confirmada' }]);
+    this.closeForm('sale'); this.showToast('Venta registrada correctamente');
+  }
+  protected onManualAccessSaved(data: { clientCode: string; movement: string; note: string }): void {
+    const code = data.clientCode.trim().toUpperCase();
+    if (!/^A\d{3}$/.test(code)) { this.showToast('Usa un código válido de cuatro caracteres, por ejemplo A001'); return; }
+    const client = code === 'A001' ? 'Jorge Medina' : `Cliente ${code}`;
+    this.accessEvents.update(items => [{ client, time: new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' }), type: data.movement, result: 'Permitido', reason: 'Registro manual por operador' }, ...items]);
+    this.closeForm('manual-access'); this.showToast(`Asistencia registrada para ${client}`);
+  }
   protected handleFormSaved(submission: FormSubmission): void {
     switch (submission.kind) {
       case 'payment': this.onPaymentSaved(submission.data); break;
@@ -219,6 +342,10 @@ export class App {
       case 'routine-plan': this.onRoutinePlanSaved(submission.data); break;
       case 'machine': this.onMachineSaved(submission.data); break;
       case 'session': this.onSessionSaved(submission.data); break;
+      case 'prospect': this.onProspectSaved(submission.data); break;
+      case 'appointment': this.onAppointmentSaved(submission.data); break;
+      case 'sale': this.onSaleSaved(submission.data); break;
+      case 'manual-access': this.onManualAccessSaved(submission.data); break;
     }
   }
   protected closeForm(kind: string): void {
@@ -230,9 +357,18 @@ export class App {
     if (kind === 'routine-plan') this.isRoutinePlanFormOpen.set(false);
     if (kind === 'machine') this.isMachineFormOpen.set(false);
     if (kind === 'session') this.isSessionFormOpen.set(false);
+    if (kind === 'prospect') this.isProspectFormOpen.set(false);
+    if (kind === 'appointment') this.isAppointmentFormOpen.set(false);
+    if (kind === 'sale') this.isSaleFormOpen.set(false);
+    if (kind === 'manual-access') this.isManualAccessFormOpen.set(false);
+    if (kind === 'load') { this.isLoadFormOpen.set(false); this.selectedLoadExercise.set(null); }
   }
   protected handleModuleAction(action: string): void {
     if (action === 'new-client') this.openClientForm();
+    else if (action === 'new-prospect') this.openProspectForm();
+    else if (action === 'new-appointment') this.openAppointmentForm();
+    else if (action === 'new-sale') this.openSaleForm();
+    else if (action === 'manual-access') this.openManualAccessForm();
     else if (action.startsWith('view-client:')) this.openClientDetails(Number(action.split(':')[1]));
     else if (action === 'new-plan') this.openPlanForm();
     else if (action === 'new-payment' || action === 'voice-payment') { this.activeView.set('pagos'); this.isPaymentOpen.set(true); if (action === 'voice-payment') this.startVoicePayment(); }
@@ -240,25 +376,53 @@ export class App {
     else if (action === 'new-routine-plan' || action === 'new-routine') this.openRoutinePlanForm();
     else if (action === 'edit-routine' || action === 'new-routine-exercise' || action === 'new-machine') { this.activeView.set('entrenamiento'); action === 'new-machine' ? this.openMachineForm() : this.openRoutineForm(); }
     else if (action === 'new-session') { this.activeView.set('entrenamiento'); this.isSessionFormOpen.set(true); }
-    else if (action === 'register-load') this.showToast('Carga registrada en la sesión actual');
-    else if (action === 'reserve-class') this.showToast('Reserva confirmada');
+    else if (action === 'register-load' || action.startsWith('register-load:')) this.openLoadForm(action.split(':')[1] || undefined);
+    else if (action === 'reserve-class') this.reserveClass();
     else if (action === 'class-action') this.showToast('Agenda de clases preparada');
-    else if (action === 'scan-qr') this.showToast('Escáner QR preparado');
-    else if (action === 'view-plan') this.showToast('Detalle del plan seleccionado');
+    else if (action === 'scan-qr') this.registerQrAccess();
+    else if (action === 'view-plan' || action === 'plan-detail') this.openDetail('routine');
     else if (action === 'view-payment') this.navigate('pagos');
     else if (action === 'renew-membership') this.navigate('pagos');
-    else if (action === 'view-class') this.showToast('Detalle de la clase seleccionado');
-    else if (action === 'view-access') this.showToast('Detalle del acceso seleccionado');
+    else if (action.startsWith('validate-payment:')) this.validatePayment(Number(action.split(':')[1]));
+    else if (action.startsWith('reject-payment:')) this.rejectPayment(Number(action.split(':')[1]));
+    else if (action === 'copy-payment-number') this.copyPaymentNumber('999 888 777');
+    else if (action === 'go-training') this.navigate('entrenamiento');
+    else if (action === 'export-report') this.exportReport();
+    else if (action === 'view-report') this.openDetail('report');
+    else if (action === 'view-exercise') this.openDetail('exercise');
+    else if (action === 'view-routine') this.openDetail('routine');
+    else if (action === 'view-session' || action === 'view-history') this.openDetail('session');
+    else if (action === 'view-prospect') this.openDetail('prospect');
+    else if (action === 'view-sale') this.openDetail('sale');
+    else if (action === 'view-class' || action === 'view-access') this.showToast('Detalle seleccionado');
     else this.showToast('Acción ejecutada correctamente');
+  }
+  protected registerQrAccess(): void {
+    if (this.session()?.role === 'USUARIO') { this.isQrOpen.set(true); return; }
+    this.accessEvents.update(items => [{ client: 'Jorge Medina', time: new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' }), type: 'Entrada', result: 'Permitido', reason: 'QR validado · Membresía activa' }, ...items]);
+    this.showToast('Ingreso registrado mediante QR para Jorge Medina');
+  }
+  protected closeQr(): void { this.isQrOpen.set(false); }
+  protected closeDetail(): void { this.selectedDetail.set(null); }
+  protected openDetail(kind: string): void {
+    const data = kind === 'exercise' ? this.workouts()[0] : kind === 'routine' ? this.routines()[0] : kind === 'session' ? this.sessionRecords()[0] : kind === 'prospect' ? this.prospects()[0] : kind === 'sale' ? this.sales()[0] : {};
+    this.selectedDetail.set({ kind, data });
+  }
+  protected exportReport(): void {
+    const rows = [['Indicador', 'Valor'], ['Clientes activos', '428'], ['Ingresos del mes', 'S/ 12,450'], ['Asistencia promedio', '86%'], ['Clientes con seguimiento', '64']];
+    const csv = rows.map(row => row.join(',')).join('\n');
+    const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })); link.download = 'max-fit-resumen.csv'; link.click(); URL.revokeObjectURL(link.href);
+    this.showToast('Resumen exportado correctamente');
   }
   @HostListener('click', ['$event'])
   protected handleUnwiredButtons(event: Event): void {
     const button = (event.target as HTMLElement).closest('button');
     if (!button) return;
     if (button.classList.contains('link-button')) this.forgotPassword();
-    if (button.classList.contains('mobile-menu')) this.toggleMenu();
+    // AppShell ya emite el evento del menú móvil; aquí solo se atienden botones globales.
     if (button.classList.contains('date-chip')) this.showToast('Fecha actual: 05 de septiembre de 2024');
     if (button.classList.contains('filter-button')) { this.toggleFilters(); this.showToast(this.isFilterOpen() ? 'Filtros disponibles en la tabla de clientes' : 'Filtros cerrados'); }
   }
   protected initials(name: string): string { return name.split(' ').map(part => part[0]).slice(0, 2).join(''); }
+  protected parseLoad(value: string | undefined): number { return Number(String(value ?? '0').replace(/[^0-9.]/g, '')) || 0; }
 }
