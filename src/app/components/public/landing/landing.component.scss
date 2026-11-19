@@ -39,7 +39,9 @@
 .service-icon{background:transparent}
 .service-icon{background:var(--orange)}
 .service-icon img{width:82%;height:82%;margin:9%;border-radius:9px;opacity:1}
-.service-icon{margin-bottom:auto}
+.service-icon{margin-bottom:22px}
+.service-copy{display:flex;flex-direction:column;margin-top:auto}
+.service-copy>a{margin-top:18px}
 .service-musculacion{background-image:linear-gradient(145deg,#1118,#1119),url('/service-musculacion.png')}
 .service-baile{background-image:linear-gradient(145deg,#1118,#1119),url('/service-baile.png')}
 .service-nutricion{background-image:linear-gradient(145deg,#1118,#1119),url('/service-nutricion.png')}
