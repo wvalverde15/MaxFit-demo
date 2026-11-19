@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, OnDestroy, Output, ViewChild } from '@angular/core';
 
 @Component({
   selector: 'app-landing',
@@ -7,14 +7,16 @@ import { AfterViewInit, Component, ElementRef, EventEmitter, Output, ViewChild }
   // The landing stylesheet is loaded globally so it can share the application's design tokens
   // without adding another component style budget entry.
 })
-export class LandingComponent implements AfterViewInit {
+export class LandingComponent implements AfterViewInit, OnDestroy {
   @ViewChild('heroVideo') private readonly heroVideo?: ElementRef<HTMLVideoElement>;
   @Output() readonly login = new EventEmitter<void>();
   @Output() readonly store = new EventEmitter<void>();
   @Output() readonly contact = new EventEmitter<void>();
   @Output() readonly location = new EventEmitter<void>();
   protected menuOpen = false;
+  protected activeSection = 'inicio';
   protected activeTestimonial = 0;
+  private sectionObserver?: IntersectionObserver;
   ngAfterViewInit(): void {
     const video = this.heroVideo?.nativeElement;
     if (!video) return;
@@ -22,7 +24,17 @@ export class LandingComponent implements AfterViewInit {
     video.defaultMuted = true;
     video.playsInline = true;
     video.play().catch(() => undefined);
+    if (typeof IntersectionObserver === 'undefined') return;
+    const sections = ['inicio', 'horarios', 'instalaciones', 'servicios']
+      .map(id => document.getElementById(id))
+      .filter((section): section is HTMLElement => Boolean(section));
+    this.sectionObserver = new IntersectionObserver(entries => {
+      const visible = entries.filter(entry => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if (visible) this.activeSection = visible.target.id;
+    }, { rootMargin: '-22% 0px -58% 0px', threshold: [0.1, 0.35, 0.6] });
+    sections.forEach(section => this.sectionObserver?.observe(section));
   }
+  ngOnDestroy(): void { this.sectionObserver?.disconnect(); }
   protected closeMenu(): void { this.menuOpen = false; }
   protected previousTestimonial(): void { this.activeTestimonial = (this.activeTestimonial + 3) % 4; }
   protected nextTestimonial(): void { this.activeTestimonial = (this.activeTestimonial + 1) % 4; }
