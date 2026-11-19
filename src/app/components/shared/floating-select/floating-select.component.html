@@ -1,0 +1,1 @@
+<div class="floating-control" [class.has-value]="hasValue"><select [id]="inputId" [value]="value ?? ''" [disabled]="disabled" [attr.aria-label]="label" (change)="handleChange($event)" (blur)="onTouched()"><ng-content></ng-content></select><label [for]="inputId">{{ label }}</label></div>

@@ -1,6 +1,12 @@
-@if (isShopRoute()) {
+@if (isLandingRoute()) {
+  <app-landing (login)="goToLogin()" (store)="openShop()" (contact)="openContact()" (location)="openLocation()"></app-landing>
+} @else if (isContactRoute()) {
+  <app-contact (back)="goToLanding()" (login)="goToLogin()" (submitted)="registerContact($event)"></app-contact>
+} @else if (isLocationRoute()) {
+  <app-location (back)="goToLanding()" (login)="goToLogin()"></app-location>
+} @else if (isShopRoute()) {
   <app-shop (backToLogin)="goToLogin()"></app-shop>
-} @else if (!session()) {
+} @else if (isLoginRoute() || !session()) {
   <app-login (submit)="loginFromComponent($event)" (forgot)="forgotPassword()" (shop)="openShop()"></app-login>
 } @else {
   <app-shell [navItems]="visibleNav()" [activeView]="activeView()" [role]="session()?.role ?? ''" [roleLabel]="roleLabel()" [name]="session()?.name ?? ''" [menuOpen]="isMenuOpen()" (navigate)="navigate($event)" (logout)="logout()" (menu)="toggleMenu()">

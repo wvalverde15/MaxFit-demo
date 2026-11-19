@@ -1,0 +1,68 @@
+
+    <main class="shop-page">
+      <header class="shop-header">
+        <a class="shop-brand" href="/shop" aria-label="Max Fit Shop">
+          <span class="shop-dog-logo"><img src="max-fit-dog.png" alt="Max Fit" /></span>
+          <span>MAX <b>FIT</b><small>SHOP</small></span>
+        </a>
+        <nav class="shop-nav" aria-label="Navegación de tienda">
+          <a href="#catalogo">Catálogo</a>
+          <a href="#beneficios">Beneficios</a>
+          <button class="shop-login-button" type="button" (click)="backToLogin.emit()">Iniciar sesión <span>→</span></button>
+        </nav>
+      </header>
+
+      <section class="shop-hero">
+        <div class="shop-hero-copy">
+          <span class="shop-kicker"><i></i> MAX FIT SHOP</span>
+          <h1>Todo para acompañar tu progreso.</h1>
+          <p>Productos seleccionados para ayudarte a entrenar mejor y acercarte a cada meta.</p>
+          <div class="shop-hero-actions">
+            <button class="shop-primary-button" type="button" (click)="scrollToCatalog()">Quiero mejorar mi entrenamiento <span>↓</span></button>
+            <span class="shop-trust"><b>12</b> productos seleccionados</span>
+          </div>
+        </div>
+        <div class="shop-hero-visual" aria-label="Selección de productos Max Fit"></div>
+      </section>
+
+      <section class="shop-benefits" id="beneficios" aria-label="Beneficios de Max Fit Shop">
+        <div><span>01</span><strong>Selección deportiva</strong><small>Productos pensados para tu rendimiento.</small></div>
+        <div><span>02</span><strong>Compra informada</strong><small>Conoce cada detalle antes de elegir.</small></div>
+        <div><span>03</span><strong>Atención Max Fit</strong><small>Te orientamos según tu objetivo.</small></div>
+      </section>
+
+      <section class="shop-catalog" id="catalogo">
+        <div class="shop-section-heading">
+          <div><span class="shop-kicker"><i></i> CATÁLOGO</span><h2>Todo para acompañar tu progreso</h2></div>
+          <p>Descubre suplementos y accesorios para entrenar con intención.</p>
+        </div>
+        <div class="shop-category-row" role="tablist" aria-label="Categorías de productos">
+          @for (category of categories; track category) {
+            <button type="button" role="tab" [attr.aria-selected]="selectedCategory() === category" [class.active]="selectedCategory() === category" (click)="selectedCategory.set(category)">{{ category }}</button>
+          }
+        </div>
+        <div class="shop-product-grid">
+          @for (product of filteredProducts(); track product.name) {
+            <article class="shop-product-card" [class.featured]="product.badge">
+              <div class="shop-product-image" [style.background-position]="product.position" role="img" [attr.aria-label]="product.name"></div>
+              <div class="shop-product-body">
+                <div class="shop-product-meta"><span>{{ product.category }}</span>@if (product.badge) { <b>{{ product.badge }}</b> }</div>
+                <h3>{{ product.name }}</h3>
+                <p>{{ product.detail }}</p>
+                <div class="shop-product-footer"><strong>S/ {{ product.price }}</strong><button type="button" (click)="selectProduct(product)">Quiero conocerlo <span>↗</span></button></div>
+              </div>
+            </article>
+          }
+        </div>
+      </section>
+
+      @if (selectedProduct(); as product) {
+        <section class="shop-selection" aria-live="polite">
+          <div><span class="shop-kicker"><i></i> PRODUCTO SELECCIONADO</span><h2>{{ product.name }}</h2><p>{{ product.detail }} Ideal para complementar tu plan de entrenamiento en Max Fit.</p></div>
+          <div class="shop-selection-price"><span>Precio referencial</span><strong>S/ {{ product.price }}</strong><button class="shop-primary-button" type="button" (click)="selectedProduct.set(null)">Seguir explorando</button></div>
+        </section>
+      }
+
+      <footer class="shop-footer"><div class="shop-brand"><span class="shop-dog-logo"><img src="max-fit-dog.png" alt="Max Fit" /></span><span>MAX <b>FIT</b><small>DISCIPLINA · PERSONAS · RESULTADOS</small></span></div><div><span>¿Ya tienes una cuenta?</span><button type="button" (click)="backToLogin.emit()">Ingresar al sistema <span>→</span></button></div></footer>
+    </main>
+  

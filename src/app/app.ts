@@ -1,21 +1,24 @@
 import { CommonModule } from '@angular/common';
 import { Component, HostListener, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AppShellComponent } from './components/app-shell.component';
-import { DashboardComponent } from './components/dashboard.component';
-import { FormHostComponent, FormSubmission } from './components/form-host.component';
-import { LoginComponent } from './components/login.component';
-import { ModulePageComponent } from './components/module-page.component';
-import { UserTrainingComponent } from './components/user-training.component';
-import { UserProgressComponent } from './components/user-progress.component';
-import { UserPaymentComponent, UserPaymentSubmission } from './components/user-payment.component';
-import { PaymentInboxComponent } from './components/payment-inbox.component';
-import { LoadFormComponent } from './components/load-form.component';
-import { QrViewerComponent } from './components/qr-viewer.component';
-import { DetailPageComponent } from './components/detail-page.component';
+import { AppShellComponent } from './components/intranet/app-shell/app-shell.component';
+import { DashboardComponent } from './components/intranet/dashboard/dashboard.component';
+import { FormHostComponent, FormSubmission } from './components/intranet/form-host/form-host.component';
+import { LoginComponent } from './components/intranet/login/login.component';
+import { ModulePageComponent } from './components/intranet/module-page/module-page.component';
+import { UserTrainingComponent } from './components/intranet/user-training/user-training.component';
+import { UserProgressComponent } from './components/intranet/user-progress/user-progress.component';
+import { UserPaymentComponent, UserPaymentSubmission } from './components/intranet/user-payment/user-payment.component';
+import { PaymentInboxComponent } from './components/intranet/payment-inbox/payment-inbox.component';
+import { LoadFormComponent } from './components/intranet/load-form/load-form.component';
+import { QrViewerComponent } from './components/intranet/qr-viewer/qr-viewer.component';
+import { DetailPageComponent } from './components/intranet/detail-page/detail-page.component';
 import { DemoStoreService } from './services/demo-store.service';
 import { AuthService } from './services/auth.service';
-import { ShopComponent } from './components/shop.component';
+import { ShopComponent } from './components/public/shop/shop.component';
+import { LandingComponent } from './components/public/landing/landing.component';
+import { ContactComponent, ContactInquiry } from './components/public/contact/contact.component';
+import { LocationComponent } from './components/public/location/location.component';
 
 type Role = 'PROPIETARIO' | 'ADMI' | 'OPERADOR' | 'ASESOR' | 'USUARIO';
 type ViewKey = 'dashboard' | 'prospectos' | 'clientes' | 'membresias' | 'ventas' | 'pagos' | 'clases' | 'entrenamiento' | 'progreso' | 'accesos' | 'reportes';
@@ -37,7 +40,7 @@ interface MeasurementRecord { id: number; date: string; weight: number; waist: n
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, FormsModule, AppShellComponent, DashboardComponent, FormHostComponent, LoginComponent, ShopComponent, ModulePageComponent, UserTrainingComponent, UserProgressComponent, UserPaymentComponent, PaymentInboxComponent, LoadFormComponent, QrViewerComponent, DetailPageComponent],
+  imports: [CommonModule, FormsModule, AppShellComponent, DashboardComponent, FormHostComponent, LoginComponent, ShopComponent, LandingComponent, ContactComponent, LocationComponent, ModulePageComponent, UserTrainingComponent, UserProgressComponent, UserPaymentComponent, PaymentInboxComponent, LoadFormComponent, QrViewerComponent, DetailPageComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
@@ -70,7 +73,12 @@ export class App {
   protected readonly isVoiceListening = signal(false);
   protected readonly voiceText = signal('');
   protected readonly toast = signal('');
-  protected readonly isShopRoute = signal(typeof window !== 'undefined' && window.location.pathname.replace(/\/$/, '') === '/shop');
+  protected readonly currentPath = signal(typeof window !== 'undefined' ? window.location.pathname.replace(/\/$/, '') || '/' : '/');
+  protected readonly isLandingRoute = computed(() => !this.session() && (this.currentPath() === '/' || this.currentPath() === '/inicio'));
+  protected readonly isContactRoute = computed(() => !this.session() && this.currentPath() === '/contacto');
+  protected readonly isLocationRoute = computed(() => !this.session() && this.currentPath() === '/ubicacion');
+  protected readonly isLoginRoute = computed(() => !this.session() && this.currentPath() === '/login');
+  protected readonly isShopRoute = computed(() => !this.session() && (this.currentPath() === '/shop' || this.currentPath() === '/store'));
   protected loginEmail = 'admin@maxfit.test';
   protected loginPassword = 'Admin123';
   protected paymentClient = 'Jorge Medina';
@@ -199,8 +207,15 @@ export class App {
   protected login(): void { const match = this.auth.authenticate(this.loginEmail, this.loginPassword); if (!match) { this.loginError.set('Usuario o contraseña incorrectos'); return; } this.loginError.set(''); this.session.set({ email: match.email, name: match.name, role: match.role }); this.activeView.set('dashboard'); }
   protected loginFromComponent(data: { email: string; password: string }): void { this.loginEmail = data.email; this.loginPassword = data.password; this.login(); }
   protected logout(): void { this.session.set(null); this.loginEmail = ''; this.loginPassword = ''; }
-  protected openShop(): void { if (typeof window !== 'undefined') window.history.pushState({}, '', '/shop'); this.isShopRoute.set(true); }
-  protected goToLogin(): void { if (typeof window !== 'undefined') window.history.pushState({}, '', '/'); this.isShopRoute.set(false); }
+  protected openShop(): void { this.goToPath('/store'); }
+  protected goToLogin(): void { this.goToPath('/login'); }
+  protected goToLanding(): void { this.goToPath('/'); }
+  protected openContact(): void { this.goToPath('/contacto'); }
+  protected openLocation(): void { this.goToPath('/ubicacion'); }
+  protected registerContact(inquiry: ContactInquiry): void {
+    this.prospects.update(items => [{ id: Date.now(), name: inquiry.name, phone: inquiry.whatsapp, interest: inquiry.interest, advisor: 'Por asignar', status: 'Nuevo', nextContact: 'Pendiente', notes: inquiry.message || 'Consulta registrada desde la landing.' }, ...items]);
+  }
+  private goToPath(path: string): void { if (typeof window !== 'undefined') window.history.pushState({}, '', path); this.currentPath.set(path); }
   protected navigate(view: string): void {
     this.isMenuOpen.set(false);
     if (this.session()?.role === 'USUARIO' && view === 'membresias') view = 'pagos';
@@ -389,7 +404,7 @@ export class App {
     else if (action === 'renew-membership') this.navigate('pagos');
     else if (action.startsWith('validate-payment:')) this.validatePayment(Number(action.split(':')[1]));
     else if (action.startsWith('reject-payment:')) this.rejectPayment(Number(action.split(':')[1]));
-    else if (action === 'copy-payment-number') this.copyPaymentNumber('999 888 777');
+    else if (action === 'copy-payment-number') this.copyPaymentNumber('979 431 110');
     else if (action === 'go-training') this.navigate('entrenamiento');
     else if (action === 'export-report') this.exportReport();
     else if (action === 'view-report') this.openDetail('report');

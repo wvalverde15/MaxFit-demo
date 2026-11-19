@@ -1,0 +1,1 @@
+<div class="floating-control floating-textarea" [class.has-value]="hasValue"><textarea [id]="inputId" [value]="value ?? ''" [placeholder]="placeholder" [rows]="rows" [readonly]="readonly" [disabled]="disabled" [attr.aria-label]="label" (input)="handleInput($event)" (blur)="onTouched()"></textarea><label [for]="inputId">{{ label }}</label></div>

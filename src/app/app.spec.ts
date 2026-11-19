@@ -53,7 +53,7 @@ describe('App', () => {
   it('should validate a payment proof and mark WhatsApp confirmation', () => {
     const fixture = TestBed.createComponent(App);
     const app = fixture.componentInstance as any;
-    app.paymentProofs.set([{ id: 1, client: 'Jorge Medina', plan: 'Mensual', amount: 120, method: 'Yape', phone: '999 888 777', fileName: 'prueba.jpg', submittedAt: 'Hoy', status: 'Pendiente', whatsappSent: false }]);
+    app.paymentProofs.set([{ id: 1, client: 'Jorge Medina', plan: 'Mensual', amount: 120, method: 'Yape', phone: '979 431 110', fileName: 'prueba.jpg', submittedAt: 'Hoy', status: 'Pendiente', whatsappSent: false }]);
     app.validatePayment(1);
     expect(app.paymentProofs()[0].status).toBe('Validado');
     expect(app.paymentProofs()[0].whatsappSent).toBeTrue();
