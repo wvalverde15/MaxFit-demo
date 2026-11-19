@@ -16,6 +16,7 @@ export class LandingComponent implements AfterViewInit, OnDestroy {
   protected menuOpen = false;
   protected activeSection = 'inicio';
   protected activeTestimonial = 0;
+  protected activeFacility = 0;
   private sectionObserver?: IntersectionObserver;
   ngAfterViewInit(): void {
     const video = this.heroVideo?.nativeElement;
@@ -38,5 +39,8 @@ export class LandingComponent implements AfterViewInit, OnDestroy {
   protected closeMenu(): void { this.menuOpen = false; }
   protected previousTestimonial(): void { this.activeTestimonial = (this.activeTestimonial + 3) % 4; }
   protected nextTestimonial(): void { this.activeTestimonial = (this.activeTestimonial + 1) % 4; }
+  protected previousFacility(): void { this.activeFacility = (this.activeFacility + 2) % 3; }
+  protected nextFacility(): void { this.activeFacility = (this.activeFacility + 1) % 3; }
+  protected showFacility(index: number): void { this.activeFacility = index; }
 }
 
