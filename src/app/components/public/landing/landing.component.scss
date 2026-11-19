@@ -37,7 +37,8 @@
 .landing-service-card>div{display:flex;flex-direction:column;height:100%}
 .landing-service-card>div>a{margin-top:auto}
 .service-icon{background:transparent}
-.service-icon img{width:100%;height:100%;margin:0;border-radius:12px}
+.service-icon{background:var(--orange)}
+.service-icon img{width:82%;height:82%;margin:9%;border-radius:9px;opacity:1}
 .service-icon{margin-bottom:auto}
 .service-musculacion{background-image:linear-gradient(145deg,#1118,#1119),url('/service-musculacion.png')}
 .service-baile{background-image:linear-gradient(145deg,#1118,#1119),url('/service-baile.png')}
