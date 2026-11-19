@@ -15,7 +15,6 @@ import { QrViewerComponent } from './components/intranet/qr-viewer/qr-viewer.com
 import { DetailPageComponent } from './components/intranet/detail-page/detail-page.component';
 import { DemoStoreService } from './services/demo-store.service';
 import { AuthService } from './services/auth.service';
-import { ShopComponent } from './components/public/shop/shop.component';
 import { LandingComponent } from './components/public/landing/landing.component';
 import { ContactComponent, ContactInquiry } from './components/public/contact/contact.component';
 import { LocationComponent } from './components/public/location/location.component';
@@ -40,7 +39,7 @@ interface MeasurementRecord { id: number; date: string; weight: number; waist: n
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, FormsModule, AppShellComponent, DashboardComponent, FormHostComponent, LoginComponent, ShopComponent, LandingComponent, ContactComponent, LocationComponent, ModulePageComponent, UserTrainingComponent, UserProgressComponent, UserPaymentComponent, PaymentInboxComponent, LoadFormComponent, QrViewerComponent, DetailPageComponent],
+  imports: [CommonModule, FormsModule, AppShellComponent, DashboardComponent, FormHostComponent, LoginComponent, LandingComponent, ContactComponent, LocationComponent, ModulePageComponent, UserTrainingComponent, UserProgressComponent, UserPaymentComponent, PaymentInboxComponent, LoadFormComponent, QrViewerComponent, DetailPageComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
@@ -78,7 +77,7 @@ export class App {
   protected readonly isContactRoute = computed(() => !this.session() && this.currentPath() === '/contacto');
   protected readonly isLocationRoute = computed(() => !this.session() && this.currentPath() === '/ubicacion');
   protected readonly isLoginRoute = computed(() => !this.session() && this.currentPath() === '/login');
-  protected readonly isShopRoute = computed(() => !this.session() && (this.currentPath() === '/shop' || this.currentPath() === '/store'));
+  protected readonly isStoreNoticeOpen = signal(false);
   protected loginEmail = 'admin@maxfit.test';
   protected loginPassword = 'Admin123';
   protected paymentClient = 'Jorge Medina';
@@ -207,7 +206,8 @@ export class App {
   protected login(): void { const match = this.auth.authenticate(this.loginEmail, this.loginPassword); if (!match) { this.loginError.set('Usuario o contraseña incorrectos'); return; } this.loginError.set(''); this.session.set({ email: match.email, name: match.name, role: match.role }); this.activeView.set('dashboard'); }
   protected loginFromComponent(data: { email: string; password: string }): void { this.loginEmail = data.email; this.loginPassword = data.password; this.login(); }
   protected logout(): void { this.session.set(null); this.loginEmail = ''; this.loginPassword = ''; }
-  protected openShop(): void { this.goToPath('/store'); }
+  protected openShop(): void { this.isStoreNoticeOpen.set(true); }
+  protected closeStoreNotice(): void { this.isStoreNoticeOpen.set(false); }
   protected goToLogin(): void { this.goToPath('/login'); }
   protected goToLanding(): void { this.goToPath('/'); }
   protected openContact(): void { this.goToPath('/contacto'); }

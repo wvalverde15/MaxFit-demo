@@ -16,6 +16,8 @@ export interface ContactInquiry { name: string; interest: string; whatsapp: stri
 export class ContactComponent {
   @Output() readonly back = new EventEmitter<void>();
   @Output() readonly login = new EventEmitter<void>();
+  @Output() readonly store = new EventEmitter<void>();
+  @Output() readonly location = new EventEmitter<void>();
   @Output() readonly submitted = new EventEmitter<ContactInquiry>();
   protected form: ContactInquiry = { name: '', interest: '', whatsapp: '', message: '' };
   protected countryCode = '+51';
