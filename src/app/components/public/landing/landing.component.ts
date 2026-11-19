@@ -25,7 +25,7 @@ export class LandingComponent implements AfterViewInit, OnDestroy {
     video.playsInline = true;
     video.play().catch(() => undefined);
     if (typeof IntersectionObserver === 'undefined') return;
-    const sections = ['inicio', 'horarios', 'instalaciones', 'servicios']
+    const sections = ['inicio', 'horarios', 'instalaciones', 'servicios', 'testimonios']
       .map(id => document.getElementById(id))
       .filter((section): section is HTMLElement => Boolean(section));
     this.sectionObserver = new IntersectionObserver(entries => {
