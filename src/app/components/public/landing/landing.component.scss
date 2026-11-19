@@ -44,8 +44,8 @@
 .landing-service-card .service-copy p{margin:0}
 .service-copy>a{margin-top:0}
 .service-musculacion{background-image:linear-gradient(145deg,#1118,#1119),url('/service-musculacion.png')}
-.service-baile{background-image:linear-gradient(145deg,#1118,#1119),url('/service-baile.png')}
-.service-nutricion{background-image:linear-gradient(145deg,#1118,#1119),url('/service-nutricion.png')}
+.service-baile{background-image:linear-gradient(145deg,#1118,#1119),url('/service-baile-reflected.png')}
+.service-nutricion{background-image:linear-gradient(145deg,#1118,#1119),url('/service-nutricion-reflected.png')}
 .testimonial-stage{position:relative}
 .testimonial-card{opacity:0;animation:none;transition:opacity .28s ease,transform .28s ease;pointer-events:none}
 .testimonial-card.active{opacity:1;transform:translateX(0);pointer-events:auto;position:relative}
