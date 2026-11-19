@@ -30,6 +30,7 @@
 @media(max-width:760px){.facility-gallery-label{font-size:1.8rem}.facility-gallery-brand img{width:36px;height:36px}}
 
 /* Testimonios: navegación manual */
+.schedule-row{grid-template-columns:190px 1fr auto;gap:14px;padding:13px 20px;font-size:.68rem}
 .service-icon{display:block;width:90px;height:90px;margin-bottom:22px;border-radius:12px;overflow:hidden;background:var(--orange);box-shadow:0 10px 24px #0005}
 .service-icon img{display:block;width:100%;height:100%;object-fit:cover}
 .service-icon{width:45px;height:45px;margin-bottom:25px;border-radius:12px;box-shadow:none}
