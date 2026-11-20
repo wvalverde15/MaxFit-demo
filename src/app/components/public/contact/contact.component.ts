@@ -14,6 +14,7 @@ export interface ContactInquiry { name: string; interest: string; whatsapp: stri
   styleUrl: './contact.component.scss'
 })
 export class ContactComponent {
+  protected menuOpen = false;
   @Output() readonly back = new EventEmitter<void>();
   @Output() readonly login = new EventEmitter<void>();
   @Output() readonly store = new EventEmitter<void>();
@@ -26,6 +27,7 @@ export class ContactComponent {
   protected step = 1;
   protected readonly interestOptions = ['Musculación', 'Baile', 'Nutrición', 'Bajar de Peso', 'Membresías', 'Productos de la tienda'];
   protected selectedInterests: string[] = [];
+  protected closeMenu(): void { this.menuOpen = false; }
   protected get stepTitle(): string { return this.step === 1 ? '¿Cómo te llamas?' : this.step === 2 ? '¿Cuál es tu WhatsApp?' : '¿Qué cambio quieres empezar?'; }
   protected get stepDescription(): string { return this.step === 1 ? 'Queremos conocerte.' : this.step === 2 ? 'Te enviaremos la información por este medio.' : 'Elige el servicio que más se adapta a tu objetivo.'; }
   protected nextStep(): void {
