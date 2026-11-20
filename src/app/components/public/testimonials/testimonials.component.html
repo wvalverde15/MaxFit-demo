@@ -1,0 +1,25 @@
+<main class="public-detail-page">
+  <header class="public-detail-header">
+    <a class="public-detail-brand" href="/" aria-label="Max Fit inicio"><img src="max-fit-dog.png" alt="" /><span>MAX <b>FIT</b></span></a>
+    <nav class="public-detail-nav" aria-label="Navegación principal">
+      <a href="/">Inicio</a><a href="/#servicios">Servicios</a><a href="/#horarios">Horarios</a>
+      <a href="/instalaciones">Instalaciones</a><a class="active" href="/testimonios">Testimonios</a>
+      <a href="/ubicacion">Ubicación</a><a href="/contacto">Contacto</a>
+      <button type="button" (click)="store.emit()">Tienda</button>
+    </nav>
+    <button class="public-detail-login" type="button" (click)="login.emit()">Ingresar <span>→</span></button>
+  </header>
+  <section class="public-detail-hero">
+    <span class="public-detail-kicker">LA COMUNIDAD MAX FIT</span>
+    <h1>Historias que<br /><em>te inspiran.</em></h1>
+    <p>Objetivos distintos, pequeños avances y una comunidad que acompaña cada paso.</p>
+  </section>
+  <section class="testimonials-grid" aria-label="Experiencias de miembros Max Fit">
+    <article><img src="testimonial-ana.png" alt="Ana, miembro de Max Fit" /><div><span>★★★★★</span><blockquote>“Volví a sentirme fuerte y constante. Ahora entrenar forma parte de mi semana.”</blockquote><strong>Ana Torres</strong><small>Miembro Max Fit</small></div></article>
+    <article><img src="testimonial-carlos.png" alt="Carlos, miembro de Max Fit" /><div><span>★★★★★</span><blockquote>“Encontré un lugar donde puedo avanzar a mi ritmo y no rendirme.”</blockquote><strong>Carlos Medina</strong><small>Miembro Max Fit</small></div></article>
+    <article><img src="testimonial-maria.png" alt="María, miembro de Max Fit" /><div><span>★★★★★</span><blockquote>“La energía del gimnasio me motiva a seguir cuidándome todos los días.”</blockquote><strong>María Salazar</strong><small>Miembro Max Fit</small></div></article>
+    <article><img src="testimonial-lucia.png" alt="Lucía, miembro de Max Fit" /><div><span>★★★★★</span><blockquote>“Con el baile recuperé la alegría de moverme y disfrutar el entrenamiento.”</blockquote><strong>Lucía Ramos</strong><small>Miembro Max Fit</small></div></article>
+  </section>
+  <section class="public-detail-cta"><h2>Tu historia puede empezar aquí.</h2><p>Cuéntanos qué objetivo tienes y te orientamos sobre el siguiente paso.</p><button type="button" (click)="contact.emit()">Hablar con Max Fit <span>↗</span></button></section>
+  <footer class="public-detail-footer"><a href="/">← Volver al inicio</a><span>DISCIPLINA · PERSONAS · RESULTADOS</span><a href="/contacto">Contáctanos</a></footer>
+</main>

@@ -13,10 +13,10 @@ export class LandingComponent implements AfterViewInit, OnDestroy {
   @Output() readonly store = new EventEmitter<void>();
   @Output() readonly contact = new EventEmitter<void>();
   @Output() readonly location = new EventEmitter<void>();
+  @Output() readonly facilities = new EventEmitter<void>();
+  @Output() readonly testimonials = new EventEmitter<void>();
   protected menuOpen = false;
   protected activeSection = 'inicio';
-  protected activeTestimonial = 0;
-  protected activeFacility = 0;
   private sectionObserver?: IntersectionObserver;
   ngAfterViewInit(): void {
     const video = this.heroVideo?.nativeElement;
@@ -26,7 +26,7 @@ export class LandingComponent implements AfterViewInit, OnDestroy {
     video.playsInline = true;
     video.play().catch(() => undefined);
     if (typeof IntersectionObserver === 'undefined') return;
-    const sections = ['inicio', 'horarios', 'instalaciones', 'servicios', 'testimonios']
+    const sections = ['inicio', 'servicios', 'horarios']
       .map(id => document.getElementById(id))
       .filter((section): section is HTMLElement => Boolean(section));
     this.sectionObserver = new IntersectionObserver(entries => {
@@ -37,10 +37,5 @@ export class LandingComponent implements AfterViewInit, OnDestroy {
   }
   ngOnDestroy(): void { this.sectionObserver?.disconnect(); }
   protected closeMenu(): void { this.menuOpen = false; }
-  protected previousTestimonial(): void { this.activeTestimonial = (this.activeTestimonial + 3) % 4; }
-  protected nextTestimonial(): void { this.activeTestimonial = (this.activeTestimonial + 1) % 4; }
-  protected previousFacility(): void { this.activeFacility = (this.activeFacility + 2) % 3; }
-  protected nextFacility(): void { this.activeFacility = (this.activeFacility + 1) % 3; }
-  protected showFacility(index: number): void { this.activeFacility = index; }
 }
 

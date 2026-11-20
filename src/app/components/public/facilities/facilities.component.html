@@ -1,0 +1,24 @@
+<main class="public-detail-page">
+  <header class="public-detail-header">
+    <a class="public-detail-brand" href="/" aria-label="Max Fit inicio"><img src="max-fit-dog.png" alt="" /><span>MAX <b>FIT</b></span></a>
+    <nav class="public-detail-nav" aria-label="Navegación principal">
+      <a href="/">Inicio</a><a href="/#servicios">Servicios</a><a href="/#horarios">Horarios</a>
+      <a class="active" href="/instalaciones">Instalaciones</a><a href="/testimonios">Testimonios</a>
+      <a href="/ubicacion">Ubicación</a><a href="/contacto">Contacto</a>
+      <button type="button" (click)="store.emit()">Tienda</button>
+    </nav>
+    <button class="public-detail-login" type="button" (click)="login.emit()">Ingresar <span>→</span></button>
+  </header>
+  <section class="public-detail-hero">
+    <span class="public-detail-kicker">EL ESPACIO MAX FIT</span>
+    <h1>Un ambiente<br /><em>que te da energía.</em></h1>
+    <p>Conoce los espacios donde entrenamos, aprendemos y avanzamos en comunidad.</p>
+  </section>
+  <section class="facilities-grid" aria-label="Galería de instalaciones">
+    <article><img src="service-musculacion.png" alt="Área de musculación Max Fit" /><div><span>01 / FUERZA</span><h2>Musculación</h2><p>Un espacio para trabajar a tu ritmo y progresar con constancia.</p></div></article>
+    <article><img src="service-baile-reflected.png" alt="Sala de baile Max Fit" /><div><span>02 / MOVIMIENTO</span><h2>Baile fitness</h2><p>Clases para moverte, disfrutar y compartir energía.</p></div></article>
+    <article><img src="service-nutricion-reflected.png" alt="Espacio de bienestar Max Fit" /><div><span>03 / BIENESTAR</span><h2>Bienestar</h2><p>Orientación para acompañar tus objetivos dentro y fuera del gimnasio.</p></div></article>
+  </section>
+  <section class="public-detail-cta"><h2>Ven a conocer Max Fit.</h2><p>Estamos en Trujillo. Escríbenos y coordinamos tu visita.</p><a href="/contacto">Coordinar una visita <span>↗</span></a></section>
+  <footer class="public-detail-footer"><a href="/">← Volver al inicio</a><span>DISCIPLINA · PERSONAS · RESULTADOS</span><a href="/ubicacion">Ver ubicación</a></footer>
+</main>

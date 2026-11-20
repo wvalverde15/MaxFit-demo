@@ -7,10 +7,10 @@
         </a>
         <nav class="landing-nav" [class.open]="menuOpen" aria-label="Navegación principal">
           <a href="#inicio" [class.active]="activeSection === 'inicio'" (click)="closeMenu()">Inicio</a>
-          <a href="#horarios" [class.active]="activeSection === 'horarios'" (click)="closeMenu()">Horarios</a>
-          <a href="#instalaciones" [class.active]="activeSection === 'instalaciones'" (click)="closeMenu()">Instalaciones</a>
           <a href="#servicios" [class.active]="activeSection === 'servicios'" (click)="closeMenu()">Servicios</a>
-          <a href="#testimonios" [class.active]="activeSection === 'testimonios'" (click)="closeMenu()">Testimonios</a>
+          <a href="#horarios" [class.active]="activeSection === 'horarios'" (click)="closeMenu()">Horarios</a>
+          <button class="landing-nav-link" type="button" (click)="facilities.emit(); closeMenu()">Instalaciones</button>
+          <button class="landing-nav-link" type="button" (click)="testimonials.emit(); closeMenu()">Testimonios</button>
           <button class="landing-nav-link" type="button" (click)="store.emit(); closeMenu()">Tienda</button>
           <button class="landing-nav-link" type="button" (click)="location.emit(); closeMenu()">Ubicación</button>
           <button class="landing-nav-link" type="button" (click)="contact.emit(); closeMenu()">Contacto</button>
@@ -27,7 +27,7 @@
         <div class="landing-hero-glow" aria-hidden="true"></div>
         <div class="landing-hero-content">
           <span class="landing-kicker"><i></i> GIMNASIO · COMUNIDAD · RESULTADOS</span>
-          <h1>Empieza hoy la versión de ti<br /><em>que quieres ver.</em></h1>
+          <h1>Empieza hoy<br />la versión de ti<br /><em>que quieres ver.</em></h1>
           <p>Entrena a tu ritmo, siéntete mejor y avanza acompañado todos los días.</p>
           <div class="landing-hero-actions">
             <button class="landing-primary" type="button" (click)="contact.emit()">Quiero empezar mi cambio <span>↗</span></button>
@@ -37,16 +37,8 @@
         <div class="landing-scroll-hint"><span></span> Desliza para descubrir</div>
       </section>
 
-      <section class="landing-intro section-wrap">
-        <div class="section-eyebrow">01 / EL MÉTODO MAX FIT</div>
-        <div class="landing-intro-grid">
-          <h2>No vienes solo a entrenar.<br /><span>Vienes a sentirte mejor.</span></h2>
-          <div><p>Tu objetivo es único. Por eso te acompañamos con un espacio, una comunidad y servicios pensados para ti.</p><a class="section-link" href="/contacto">Quiero conocer Max Fit <span>→</span></a></div>
-        </div>
-      </section>
-
       <section class="landing-services section-wrap" id="servicios">
-        <div class="section-heading"><div><div class="section-eyebrow">02 / SERVICIOS</div><h2>Elige cómo quieres<br /><span>transformar tu energía.</span></h2></div><p>Encuentra el servicio que se adapta a tu objetivo y empieza a avanzar.</p></div>
+        <div class="section-heading"><div><div class="section-eyebrow">01 / SERVICIOS</div><h2>Elige cómo quieres<br /><span>transformar tu energía.</span></h2></div><p>Encuentra el servicio que se adapta a tu objetivo y empieza a avanzar.</p></div>
         <div class="landing-service-grid">
           <article class="landing-service-card service-musculacion"><div><div class="service-copy"><h3>Musculación</h3><p>Gana fuerza, mejora tu técnica y descubre de lo que eres capaz.</p><a href="/contacto">Quiero conocerlo <span>→</span></a></div></div></article>
           <article class="landing-service-card service-baile"><div><div class="service-copy"><h3>Baile</h3><p>Libera energía, disfruta cada movimiento y entrena sin sentir que entrenas.</p><a href="#horarios">Ver horarios <span>→</span></a></div></div></article>
@@ -55,12 +47,17 @@
       </section>
 
       <section class="landing-schedule" id="horarios">
-        <div class="section-wrap schedule-inner"><div><div class="section-eyebrow">03 / HORARIOS</div><h2>Tu momento<br /><em>empieza aquí.</em></h2><p>Organiza tu visita con nuestros horarios actualizados de atención.</p><a class="landing-primary" href="/contacto">Consultar disponibilidad <span>↗</span></a></div><div class="schedule-tables"><div class="schedule-board"><div class="schedule-board-head"><span>Horario de atención</span><strong>Max Fit Trujillo</strong></div><div class="schedule-row"><b>Lunes a viernes</b><span>6:00 a. m. — 10:00 p. m.</span><i>Abierto</i></div><div class="schedule-row"><b>Sábados</b><span>7:00 a. m. — 6:00 p. m.</span><i>Abierto</i></div><div class="schedule-row"><b>Domingos</b><span>8:00 a. m. — 1:00 p. m.</span><i>Abierto</i></div><div class="schedule-row"><b>Feriados</b><span>7:00 a. m. — 1:00 p. m.</span><i>Horario especial</i></div></div><div class="schedule-board schedule-board-dance"><div class="schedule-board-head"><span>Horario de baile</span><strong>Clases dirigidas</strong></div><div class="schedule-row"><b>Lunes a viernes</b><span>7:00 — 8:00 p. m.</span><i>Clase</i></div><div class="schedule-row"><b>Sábados</b><span>9:00 — 10:00 a. m.</span><i>Clase</i></div></div></div></div>
+        <div class="section-wrap schedule-inner"><div><div class="section-eyebrow">02 / HORARIOS</div><h2>Tu momento<br /><em>empieza aquí.</em></h2><p>Organiza tu visita con nuestros horarios actualizados de atención.</p><a class="landing-primary" href="/contacto">Consultar disponibilidad <span>↗</span></a></div><div class="schedule-tables"><div class="schedule-board"><div class="schedule-board-head"><span>Horario de atención</span><strong>Max Fit Trujillo</strong></div><div class="schedule-row"><b>Lunes a viernes</b><span>6:00 a. m. — 10:00 p. m.</span><i>Abierto</i></div><div class="schedule-row"><b>Sábados</b><span>7:00 a. m. — 6:00 p. m.</span><i>Abierto</i></div><div class="schedule-row"><b>Domingos</b><span>8:00 a. m. — 1:00 p. m.</span><i>Abierto</i></div><div class="schedule-row"><b>Feriados</b><span>7:00 a. m. — 1:00 p. m.</span><i>Horario especial</i></div></div><div class="schedule-board schedule-board-dance"><div class="schedule-board-head"><span>Horario de baile</span><strong>Clases dirigidas</strong></div><div class="schedule-row"><b>Lunes a viernes</b><span>7:00 — 8:00 p. m.</span><i>Clase</i></div><div class="schedule-row"><b>Sábados</b><span>9:00 — 10:00 a. m.</span><i>Clase</i></div></div></div></div>
       </section>
 
-      <section class="landing-facilities section-wrap" id="instalaciones"><div class="facility-copy"><div class="section-eyebrow">04 / INSTALACIONES</div><h2>Un ambiente que<br /><span>te da energía.</span></h2><p>Todo lo que necesitas para entrenar concentrado, cómodo y con la mejor actitud.</p><div class="facility-points"><span><b>01</b> Equipamiento completo</span><span><b>02</b> Espacios funcionales</span><span><b>03</b> Comunidad que acompaña</span></div></div><div class="facility-gallery-wrap"><div class="facility-gallery" aria-label="Galería de instalaciones Max Fit"><img class="facility-photo" [class.active]="activeFacility === 0" src="service-musculacion.png" alt="Área de musculación Max Fit" /><img class="facility-photo" [class.active]="activeFacility === 1" src="service-baile-reflected.png" alt="Sala de baile Max Fit" /><img class="facility-photo" [class.active]="activeFacility === 2" src="service-nutricion-reflected.png" alt="Espacio de bienestar Max Fit" /><span class="facility-gallery-label"><span class="facility-gallery-brand"><img src="max-fit-dog.png" alt="Max Fit" /><span>MAX <b>FIT</b></span></span><small>INSTALACIONES</small></span><div class="facility-gallery-nav" aria-label="Navegar instalaciones"><button type="button" (click)="previousFacility()" aria-label="Imagen anterior">‹</button><button type="button" (click)="nextFacility()" aria-label="Siguiente imagen">›</button></div></div><div class="facility-gallery-controls"><div class="facility-gallery-progress" aria-label="Seleccionar imagen de instalaciones"><button type="button" [class.active]="activeFacility === 0" (click)="showFacility(0)" aria-label="Ver musculación"></button><button type="button" [class.active]="activeFacility === 1" (click)="showFacility(1)" aria-label="Ver baile"></button><button type="button" [class.active]="activeFacility === 2" (click)="showFacility(2)" aria-label="Ver nutrición"></button></div></div></div></section>
-
-      <section class="landing-testimonials section-wrap" id="testimonios" aria-label="Testimonios de la comunidad Max Fit"><div class="section-heading"><div><div class="section-eyebrow">05 / TESTIMONIOS</div><h2>Historias que<br /><span>te inspiran.</span></h2></div><p>Personas reales, objetivos distintos y una comunidad que acompaña cada avance.</p></div><div class="testimonial-stage"><article class="testimonial-card testimonial-card-1" [class.active]="activeTestimonial === 0"><img src="testimonial-ana.png" alt="Ana, miembro de Max Fit" /><div><span class="testimonial-stars">★★★★★</span><blockquote>“Volví a sentirme fuerte y constante. Ahora entrenar forma parte de mi semana.”</blockquote><strong>Ana Torres</strong><small>Miembro Max Fit</small></div></article><article class="testimonial-card testimonial-card-2" [class.active]="activeTestimonial === 1"><img src="testimonial-carlos.png" alt="Carlos, miembro de Max Fit" /><div><span class="testimonial-stars">★★★★★</span><blockquote>“Encontré un lugar donde puedo avanzar a mi ritmo y no rendirme.”</blockquote><strong>Carlos Medina</strong><small>Miembro Max Fit</small></div></article><article class="testimonial-card testimonial-card-3" [class.active]="activeTestimonial === 2"><img src="testimonial-maria.png" alt="María, miembro de Max Fit" /><div><span class="testimonial-stars">★★★★★</span><blockquote>“La energía del gimnasio me motiva a seguir cuidándome todos los días.”</blockquote><strong>María Salazar</strong><small>Miembro Max Fit</small></div></article><article class="testimonial-card testimonial-card-4" [class.active]="activeTestimonial === 3"><img src="testimonial-lucia.png" alt="Lucía, miembro de Max Fit" /><div><span class="testimonial-stars">★★★★★</span><blockquote>“Con el baile recuperé la alegría de moverme y disfrutar el entrenamiento.”</blockquote><strong>Lucía Ramos</strong><small>Miembro Max Fit</small></div></article><div class="testimonial-nav" aria-label="Navegar testimonios"><button type="button" (click)="previousTestimonial()" aria-label="Testimonio anterior">‹</button><button type="button" (click)="nextTestimonial()" aria-label="Siguiente testimonio">›</button></div></div><div class="testimonial-dots" aria-label="Testimonio activo"><i [class.active]="activeTestimonial === 0"></i><i [class.active]="activeTestimonial === 1"></i><i [class.active]="activeTestimonial === 2"></i><i [class.active]="activeTestimonial === 3"></i></div></section>
+      <section class="landing-testimonials section-wrap" id="testimonios" aria-label="Testimonios de la comunidad Max Fit">
+        <div class="section-heading"><div><div class="section-eyebrow">03 / COMUNIDAD</div><h2>Personas reales.<br /><span>Avances reales.</span></h2></div><p>Una comunidad que acompaña cada objetivo y celebra cada paso.</p></div>
+        <div class="landing-testimonial-preview">
+          <article class="landing-quote-card"><img src="testimonial-ana.png" alt="Ana, miembro de Max Fit" /><div><span class="testimonial-stars">★★★★★</span><blockquote>“Volví a sentirme fuerte y constante. Ahora entrenar forma parte de mi semana.”</blockquote><strong>Ana Torres</strong><small>Miembro Max Fit</small></div></article>
+          <article class="landing-quote-card"><img src="testimonial-lucia.png" alt="Lucía, miembro de Max Fit" /><div><span class="testimonial-stars">★★★★★</span><blockquote>“Con el baile recuperé la alegría de moverme y disfrutar el entrenamiento.”</blockquote><strong>Lucía Ramos</strong><small>Miembro Max Fit</small></div></article>
+        </div>
+        <div class="landing-testimonial-actions"><a class="section-link" href="/testimonios">Conoce más historias <span>→</span></a><a class="landing-primary" href="/contacto">Quiero empezar <span>↗</span></a></div>
+      </section>
 
       <footer class="landing-footer"><a class="landing-brand" href="#inicio"><span class="landing-dog-logo"><img src="max-fit-dog.png" alt="Max Fit" /></span><span>MAX <b>FIT</b></span></a><span>DISCIPLINA · PERSONAS · RESULTADOS</span><button type="button" (click)="store.emit()">Visita nuestra tienda <span>↗</span></button></footer>
     </main>

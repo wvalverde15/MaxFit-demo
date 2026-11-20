@@ -18,6 +18,9 @@ import { AuthService } from './services/auth.service';
 import { LandingComponent } from './components/public/landing/landing.component';
 import { ContactComponent, ContactInquiry } from './components/public/contact/contact.component';
 import { LocationComponent } from './components/public/location/location.component';
+import { FacilitiesComponent } from './components/public/facilities/facilities.component';
+import { TestimonialsComponent } from './components/public/testimonials/testimonials.component';
+import { ShopComponent } from './components/public/shop/shop.component';
 
 type Role = 'PROPIETARIO' | 'ADMI' | 'OPERADOR' | 'ASESOR' | 'USUARIO';
 type ViewKey = 'dashboard' | 'prospectos' | 'clientes' | 'membresias' | 'ventas' | 'pagos' | 'clases' | 'entrenamiento' | 'progreso' | 'accesos' | 'reportes';
@@ -39,7 +42,7 @@ interface MeasurementRecord { id: number; date: string; weight: number; waist: n
 
 @Component({
   selector: 'app-root',
-  imports: [CommonModule, FormsModule, AppShellComponent, DashboardComponent, FormHostComponent, LoginComponent, LandingComponent, ContactComponent, LocationComponent, ModulePageComponent, UserTrainingComponent, UserProgressComponent, UserPaymentComponent, PaymentInboxComponent, LoadFormComponent, QrViewerComponent, DetailPageComponent],
+  imports: [CommonModule, FormsModule, AppShellComponent, DashboardComponent, FormHostComponent, LoginComponent, LandingComponent, ContactComponent, LocationComponent, FacilitiesComponent, TestimonialsComponent, ShopComponent, ModulePageComponent, UserTrainingComponent, UserProgressComponent, UserPaymentComponent, PaymentInboxComponent, LoadFormComponent, QrViewerComponent, DetailPageComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
@@ -76,8 +79,10 @@ export class App {
   protected readonly isLandingRoute = computed(() => !this.session() && (this.currentPath() === '/' || this.currentPath() === '/inicio'));
   protected readonly isContactRoute = computed(() => !this.session() && this.currentPath() === '/contacto');
   protected readonly isLocationRoute = computed(() => !this.session() && this.currentPath() === '/ubicacion');
+  protected readonly isFacilitiesRoute = computed(() => !this.session() && this.currentPath() === '/instalaciones');
+  protected readonly isTestimonialsRoute = computed(() => !this.session() && this.currentPath() === '/testimonios');
+  protected readonly isShopRoute = computed(() => !this.session() && this.currentPath() === '/tienda');
   protected readonly isLoginRoute = computed(() => !this.session() && this.currentPath() === '/login');
-  protected readonly isStoreNoticeOpen = signal(false);
   protected loginEmail = 'admin@maxfit.test';
   protected loginPassword = 'Admin123';
   protected paymentClient = 'Jorge Medina';
@@ -206,16 +211,27 @@ export class App {
   protected login(): void { const match = this.auth.authenticate(this.loginEmail, this.loginPassword); if (!match) { this.loginError.set('Usuario o contraseña incorrectos'); return; } this.loginError.set(''); this.session.set({ email: match.email, name: match.name, role: match.role }); this.activeView.set('dashboard'); }
   protected loginFromComponent(data: { email: string; password: string }): void { this.loginEmail = data.email; this.loginPassword = data.password; this.login(); }
   protected logout(): void { this.session.set(null); this.loginEmail = ''; this.loginPassword = ''; }
-  protected openShop(): void { this.isStoreNoticeOpen.set(true); }
-  protected closeStoreNotice(): void { this.isStoreNoticeOpen.set(false); }
+  protected openShop(): void { this.goToPath('/tienda'); }
   protected goToLogin(): void { this.goToPath('/login'); }
   protected goToLanding(): void { this.goToPath('/'); }
   protected openContact(): void { this.goToPath('/contacto'); }
   protected openLocation(): void { this.goToPath('/ubicacion'); }
+  protected openFacilities(): void { this.goToPath('/instalaciones'); }
+  protected openTestimonials(): void { this.goToPath('/testimonios'); }
   protected registerContact(inquiry: ContactInquiry): void {
     this.prospects.update(items => [{ id: Date.now(), name: inquiry.name, phone: inquiry.whatsapp, interest: inquiry.interest, advisor: 'Por asignar', status: 'Nuevo', nextContact: 'Pendiente', notes: inquiry.message || 'Consulta registrada desde la landing.' }, ...items]);
   }
-  private goToPath(path: string): void { if (typeof window !== 'undefined') window.history.pushState({}, '', path); this.currentPath.set(path); }
+  private goToPath(path: string): void {
+    if (typeof window !== 'undefined') {
+      window.history.pushState({}, '', path);
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+    this.currentPath.set(path);
+  }
+  @HostListener('window:popstate')
+  protected syncPathFromHistory(): void {
+    if (typeof window !== 'undefined') this.currentPath.set(window.location.pathname.replace(/\/$/, '') || '/');
+  }
   protected navigate(view: string): void {
     this.isMenuOpen.set(false);
     if (this.session()?.role === 'USUARIO' && view === 'membresias') view = 'pagos';

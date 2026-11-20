@@ -1,0 +1,3 @@
+@use '../public-detail';
+.facilities-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;max-width:1200px;margin:auto;padding:20px clamp(20px,5vw,76px) 100px}.facilities-grid article{overflow:hidden;border:1px solid #333;border-radius:14px;background:#1a1a1a}.facilities-grid article img{display:block;width:100%;height:250px;object-fit:cover}.facilities-grid article>div{padding:22px}.facilities-grid h2{margin:10px 0;font:800 1.8rem 'Barlow Condensed',sans-serif;text-transform:uppercase}.facilities-grid p{color:#aaa;font-size:.78rem;line-height:1.65}
+@media(max-width:980px){.facilities-grid{grid-template-columns:1fr 1fr}}@media(max-width:600px){.facilities-grid{grid-template-columns:1fr;padding-bottom:60px}.facilities-grid article img{height:230px}}

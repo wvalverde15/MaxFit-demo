@@ -1,9 +1,15 @@
 @if (isLandingRoute()) {
-  <app-landing (login)="goToLogin()" (store)="openShop()" (contact)="openContact()" (location)="openLocation()"></app-landing>
+  <app-landing (login)="goToLogin()" (store)="openShop()" (contact)="openContact()" (location)="openLocation()" (facilities)="openFacilities()" (testimonials)="openTestimonials()"></app-landing>
 } @else if (isContactRoute()) {
   <app-contact (back)="goToLanding()" (login)="goToLogin()" (store)="openShop()" (location)="openLocation()" (submitted)="registerContact($event)"></app-contact>
 } @else if (isLocationRoute()) {
   <app-location (back)="goToLanding()" (login)="goToLogin()" (store)="openShop()" (contact)="openContact()"></app-location>
+} @else if (isFacilitiesRoute()) {
+  @defer (when isFacilitiesRoute()) { <app-facilities (login)="goToLogin()" (store)="openShop()"></app-facilities> } @placeholder { <div class="empty-state"><small>Cargando instalaciones…</small></div> }
+} @else if (isTestimonialsRoute()) {
+  @defer (when isTestimonialsRoute()) { <app-testimonials (login)="goToLogin()" (store)="openShop()" (contact)="openContact()"></app-testimonials> } @placeholder { <div class="empty-state"><small>Cargando testimonios…</small></div> }
+} @else if (isShopRoute()) {
+  @defer (when isShopRoute()) { <app-shop (backToLogin)="goToLogin()"></app-shop> } @placeholder { <div class="empty-state"><small>Cargando tienda…</small></div> }
 } @else if (isLoginRoute() || !session()) {
   <app-login (submit)="loginFromComponent($event)" (forgot)="forgotPassword()" (shop)="openShop()"></app-login>
 } @else {
@@ -34,12 +40,3 @@
 }
 @if (isVoiceListening() || voiceText()) { <div class="voice-toast" [class.listening]="isVoiceListening()"><span class="voice-pulse">◉</span><div><strong>{{ isVoiceListening() ? 'Escuchando pago por voz' : 'Transcripción lista' }}</strong><small>{{ voiceText() }}</small></div>@if (!isVoiceListening()) {<button class="primary-button small" (click)="openPaymentForm(); voiceText.set('')">Revisar</button>}</div> }
 @if (toast()) { <div class="toast">✓ {{ toast() }}</div> }
-@if (isStoreNoticeOpen()) {
-  <div class="store-notice-backdrop" role="presentation" (click)="closeStoreNotice()">
-    <section class="store-notice-modal" role="dialog" aria-modal="true" aria-labelledby="store-notice-title" (click)="$event.stopPropagation()">
-      <button class="store-notice-close" type="button" aria-label="Cerrar aviso" (click)="closeStoreNotice()">×</button>
-      <div class="store-notice-image" aria-hidden="true"></div>
-      <div class="store-notice-copy"><span>MAX FIT SHOP</span><h2 id="store-notice-title">Estamos preparando<br /><em>algo para ti.</em></h2><p>Nuestra tienda está bajo construcción. Muy pronto encontrarás productos para acompañar tu entrenamiento.</p><button class="store-notice-action" type="button" (click)="closeStoreNotice()">Entendido</button></div>
-    </section>
-  </div>
-}
