@@ -1,13 +1,13 @@
 <main class="public-detail-page">
   <header class="public-detail-header">
     <a class="public-detail-brand" href="/" aria-label="Max Fit inicio"><img src="max-fit-dog.png" alt="" /><span>MAX <b>FIT</b></span></a>
-    <nav class="public-detail-nav" aria-label="Navegación principal">
-      <a href="/">Inicio</a><a href="/#servicios">Servicios</a><a href="/#horarios">Horarios</a>
-      <a class="active" href="/instalaciones">Instalaciones</a><a href="/testimonios">Testimonios</a>
-      <a href="/ubicacion">Ubicación</a><a href="/contacto">Contacto</a>
-      <button type="button" (click)="store.emit()">Tienda</button>
+    <nav class="public-detail-nav" [class.open]="menuOpen" aria-label="Navegación principal">
+      <a href="/" (click)="closeMenu()">Inicio</a><a href="/#servicios" (click)="closeMenu()">Servicios</a><a href="/#horarios" (click)="closeMenu()">Horarios</a>
+      <a class="active" href="/instalaciones" (click)="closeMenu()">Instalaciones</a><a href="/testimonios" (click)="closeMenu()">Testimonios</a>
+      <a href="/ubicacion" (click)="closeMenu()">Ubicación</a><a href="/contacto" (click)="closeMenu()">Contacto</a>
+      <button type="button" (click)="store.emit(); closeMenu()">Tienda</button>
     </nav>
-    <button class="public-detail-login" type="button" (click)="login.emit()">Ingresar <span>→</span></button>
+    <div class="public-detail-actions"><button class="public-detail-login" type="button" (click)="login.emit()">Ingresar <span>→</span></button><button class="public-detail-menu" type="button" [attr.aria-expanded]="menuOpen" aria-label="Abrir menú" (click)="menuOpen = !menuOpen">☰</button></div>
   </header>
   <section class="public-detail-hero">
     <span class="public-detail-kicker">EL ESPACIO MAX FIT</span>
