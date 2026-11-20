@@ -60,17 +60,35 @@
       </section>
 
       <footer class="landing-footer">
-        <a class="landing-brand" href="#inicio"><span class="landing-dog-logo"><img src="max-fit-dog.png" alt="Max Fit" /></span><span>MAX <b>FIT</b><small>DISCIPLINA · PERSONAS · RESULTADOS</small></span></a>
-        <nav class="landing-footer-nav" aria-label="Enlaces del pie de página">
-          <a href="#servicios">Servicios</a><a href="#horarios">Horarios</a>
-          <button type="button" (click)="facilities.emit()">Instalaciones</button><button type="button" (click)="testimonials.emit()">Testimonios</button>
-          <button type="button" (click)="store.emit()">Tienda</button><button type="button" (click)="location.emit()">Ubicación</button><button type="button" (click)="contact.emit()">Contacto</button>
-        </nav>
-        <div class="landing-footer-contact">
-          <a href="https://wa.me/51979431110" target="_blank" rel="noopener" aria-label="Escribir a Max Fit por WhatsApp">WhatsApp <span>+51 979 431 110</span></a>
-          <a class="landing-footer-address" href="/ubicacion">Faustino Sarmiento 508<br />Urb. Las Quintanas — Trujillo <span>Ver ubicación ↗</span></a>
-          <div class="landing-social-links"><a href="https://facebook.com/maxfitquintanas" target="_blank" rel="noopener" aria-label="Max Fit en Facebook">Facebook ↗</a><a href="https://www.instagram.com/maxfitquintanas" target="_blank" rel="noopener" aria-label="Max Fit en Instagram">Instagram ↗</a></div>
+        <div class="landing-footer-main">
+          <div class="landing-footer-brand-block">
+            <a class="landing-brand" href="#inicio"><span class="landing-dog-logo"><img src="max-fit-dog.png" alt="Max Fit" /></span><span>MAX <b>FIT</b><small>DISCIPLINA · PERSONAS · RESULTADOS</small></span></a>
+            <p>Entrena a tu ritmo. Avanza con una comunidad que te acompaña.</p>
+            <div class="landing-social-links" aria-label="Redes sociales">
+              <a href="https://facebook.com/maxfitquintanas" target="_blank" rel="noopener" aria-label="Max Fit en Facebook"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 8h3V4h-3c-3 0-5 2-5 5v2H6v4h3v5h4v-5h3l1-4h-4V9c0-.7.3-1 1-1Z"/></svg></a>
+              <a href="https://www.instagram.com/maxfitquintanas" target="_blank" rel="noopener" aria-label="Max Fit en Instagram"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle class="social-icon-dot" cx="17.5" cy="6.8" r=".8"/></svg></a>
+            </div>
+          </div>
+          <div class="landing-footer-explore">
+            <h2>Explora Max Fit</h2>
+            <nav class="landing-footer-nav" aria-label="Enlaces del pie de página">
+              <a href="#servicios"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9v6m-3-4v2m18-2v2m-3-4v6M6 12h12"/></svg>Servicios</a>
+              <a href="#horarios"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Horarios</a>
+              <button type="button" (click)="facilities.emit()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V7l8-4 8 4v14M8 21v-5h8v5M8 9h.01M12 9h.01M16 9h.01"/></svg>Instalaciones</button>
+              <button type="button" (click)="testimonials.emit()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5a7.5 7.5 0 0 1-8 7.5 9 9 0 0 1-4-.9L4 20l1.2-3.2A7 7 0 0 1 4 12c0-4.4 3.6-8 8-8s8 3.1 8 7.5Z"/><path d="M8 12h.01M12 12h.01M16 12h.01"/></svg>Testimonios</button>
+              <button type="button" (click)="store.emit()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h16l-1 12H5L4 8ZM9 8a3 3 0 0 1 6 0"/></svg>Tienda</button>
+              <button type="button" (click)="location.emit()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>Ubicación</button>
+              <button type="button" (click)="contact.emit()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v12H9l-5 4V5Z"/><path d="M8 10h8M8 13h5"/></svg>Contacto</button>
+            </nav>
+          </div>
+          <div class="landing-footer-contact">
+            <h2>Visítanos o conversemos</h2>
+            <a class="footer-contact-item" href="https://wa.me/51979431110" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.5-4A8 8 0 1 1 20 11.5Z"/><path d="M9 8.5c.5 3 2.5 5 5.5 6l1-1.5-2-1-1 1c-1.2-.5-2-1.3-2.5-2.5l1-1-1-2L9 8.5Z"/></svg><span>WhatsApp<strong>+51 979 431 110</strong></span></a>
+            <a class="footer-contact-item" href="/ubicacion"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Faustino Sarmiento 508<strong>Urb. Las Quintanas — Trujillo</strong></span></a>
+            <a class="footer-location-link" href="/ubicacion">Ver ubicación y cómo llegar <span>↗</span></a>
+          </div>
         </div>
+        <div class="landing-footer-bottom"><span>© 2026 Max Fit · Trujillo, Perú</span><span>DISCIPLINA · PERSONAS · RESULTADOS</span><a href="#inicio">Volver arriba ↑</a></div>
       </footer>
     </main>
     <a class="landing-whatsapp-float" href="https://wa.me/51979431110" target="_blank" rel="noopener" aria-label="Conéctate con Max Fit por WhatsApp">
